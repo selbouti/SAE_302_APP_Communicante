@@ -1,11 +1,18 @@
+# views/login_view.py
+
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QFormLayout,
-    QLineEdit, QPushButton, QMessageBox
+    QLineEdit, QPushButton
 )
 from PyQt5.QtCore import Qt
 
 
 class LoginPage(QWidget):
+    """
+    Page de connexion.
+    Elle appelle les méthodes du UserController : login(), go_register()
+    """
+
     def __init__(self, controller):
         super().__init__()
         self.controller = controller
@@ -20,6 +27,7 @@ class LoginPage(QWidget):
         self.login = QLineEdit()
         self.password = QLineEdit()
         self.password.setEchoMode(QLineEdit.Password)
+
         form.addRow("Login :", self.login)
         form.addRow("Mot de passe :", self.password)
 
@@ -34,13 +42,16 @@ class LoginPage(QWidget):
         layout.addWidget(btn_connexion)
         layout.addWidget(btn_inscription)
         layout.addStretch()
+
         self.setLayout(layout)
 
     def _on_login_clicked(self):
         login = self.login.text().strip()
         mdp = self.password.text().strip()
 
-        if self.controller.login(login, mdp):
-            self.controller.go_home()
-        else:
-            QMessageBox.warning(self, "Erreur", "Identifiants incorrects.")
+        if not login or not mdp:
+            # On laisse le contrôleur gérer les messages via main.show_error
+            self.controller.main.show_error("Veuillez renseigner login et mot de passe.")
+            return
+
+        self.controller.login(login, mdp)

@@ -1,0 +1,38 @@
+self.edt_page = EDTImportView(self.user_controller)
+self.addWidget(self.edt_page)
+
+def show_edt_import_page(self):
+    self.setCurrentWidget(self.edt_page)
+
+
+
+self.edt_model = EDTModel()
+self.edt_parser = EDTParser()
+
+
+
+# -------------------------------
+#  IMPORTATION EDT : FICHIER
+# -------------------------------
+def import_edt_file(self, file_path):
+    try:
+        cal = self.edt_parser.load_from_file(file_path)
+        self.edt_model.save_edt_file(self.current_user["id_user"], file_path)
+        self.main.show_message("EDT importé depuis le fichier.")
+        return cal
+    except Exception as e:
+        print(e)
+        self.main.show_error("Erreur lors de l'importation du fichier EDT.")
+
+# -------------------------------
+#  IMPORTATION EDT : URL
+# -------------------------------
+def import_edt_url(self, url):
+    try:
+        cal = self.edt_parser.load_from_url(url)
+        self.edt_model.save_edt_url(self.current_user["id_user"], url)
+        self.main.show_message("EDT importé depuis l'URL.")
+        return cal
+    except Exception as e:
+        print(e)
+        self.main.show_error("Erreur lors du téléchargement de l'EDT.")

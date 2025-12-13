@@ -1,77 +1,69 @@
 from config.database import get_connection
 
-
 class UserModel:
-    """
-    Accès aux données Utilisateur en base MySQL.
-    """
 
-    def create_user(self, data: dict) -> bool:
-        """
-        Crée un utilisateur en base.
-        data = {
-            "nom", "prenom", "login", "mot_de_passe",
-            "email", "telephone", "adresse", "ville", "cp"
-        }
-        """
+    def authenticate(self, login, password):
         conn = get_connection()
-        if conn is None:
-            return False
+        cur = conn.cursor(dictionary=True)
 
-        # Vérifier que le login n'existe pas déjà
-        if self.login_exists(data["login"], conn):
-            conn.close()
-            return False
+        cur.execute("""
+            SELECT * FROM Utilisateur
+            WHERE login=%s AND mot_de_passe=%s
+        """, (login, password))
 
-        cursor = conn.cursor()
+        user = cur.fetchone()
+        cur.close()
+        conn.close()
+        return user
+
+    def create_user(self, data):
+        conn = get_connection()
+        cur = conn.cursor()
+
         sql = """
-            INSERT INTO Utilisateur
-            (nom, prenom, login, mot_de_passe, email, telephone, adresse, ville, cp)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        INSERT INTO Utilisateur
+        (login, mot_de_passe, nom, prenom, email, telephone, adresse, ville, cp)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
         """
-        cursor.execute(sql, (
-            data["nom"], data["prenom"], data["login"], data["mot_de_passe"],
-            data["email"], data["telephone"], data["adresse"],
-            data["ville"], data["cp"]
+
+        cur.execute(sql, (
+            data["login"], data["mot_de_passe"], data["nom"], data["prenom"],
+            data["email"], data["telephone"], data["adresse"], data["ville"], data["cp"]
         ))
+
         conn.commit()
-        cursor.close()
+        uid = cur.lastrowid
+        cur.close()
         conn.close()
-        return True
+        return uid
 
-    def authenticate(self, login: str, mdp: str) -> bool:
-        """
-        Vérifie si (login, mot_de_passe) correspond à un utilisateur existant.
-        """
+    def update_user(self, user_id, data):
         conn = get_connection()
-        if conn is None:
-            return False
+        cur = conn.cursor()
 
-        cursor = conn.cursor(dictionary=True)
-        sql = "SELECT id_user FROM Utilisateur WHERE login = %s AND mot_de_passe = %s"
-        cursor.execute(sql, (login, mdp))
-        user = cursor.fetchone()
-        cursor.close()
+        sql = """
+        UPDATE Utilisateur
+        SET nom=%s, prenom=%s, email=%s, telephone=%s,
+            adresse=%s, ville=%s, cp=%s
+        WHERE id_user=%s
+        """
+
+        cur.execute(sql, (
+            data["nom"], data["prenom"], data["email"], data["telephone"],
+            data["adresse"], data["ville"], data["cp"], user_id
+        ))
+
+        conn.commit()
+        cur.close()
         conn.close()
-        return user is not None
 
-    def login_exists(self, login: str, conn=None) -> bool:
-        """
-        Vérifie si un login est déjà pris.
-        Si une connexion est fournie, on la réutilise (sinon on en crée une).
-        """
-        close_conn = False
-        if conn is None:
-            conn = get_connection()
-            if conn is None:
-                return False
-            close_conn = True
+    def get_user(self, user_id):
+        conn = get_connection()
+        cur = conn.cursor(dictionary=True)
 
-        cursor = conn.cursor()
-        sql = "SELECT COUNT(*) FROM Utilisateur WHERE login = %s"
-        cursor.execute(sql, (login,))
-        (count,) = cursor.fetchone()
-        cursor.close()
-        if close_conn:
-            conn.close()
-        return count > 0
+        cur.execute("SELECT * FROM Utilisateur WHERE id_user=%s", (user_id,))
+        user = cur.fetchone()
+
+        cur.close()
+        conn.close()
+        return user

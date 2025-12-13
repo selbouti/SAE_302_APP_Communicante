@@ -1,25 +1,88 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
+# views/home_view.py
+
+from PyQt5.QtWidgets import (
+    QWidget, QVBoxLayout, QLabel, QPushButton
+)
 from PyQt5.QtCore import Qt
 
 
 class HomePage(QWidget):
+    """
+    Page d'accueil après connexion.
+    Contient les boutons d'accès aux différentes fonctionnalités.
+    """
+
     def __init__(self, controller):
         super().__init__()
         self.controller = controller
 
-        layout = QVBoxLayout()
-        titre = QLabel("🚗 Bienvenue sur l'application de covoiturage")
-        titre.setAlignment(Qt.AlignCenter)
-        titre.setStyleSheet("font-size: 18px; font-weight: bold;")
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
 
-        sous_titre = QLabel("Les autres fonctionnalités (trajets, compatibilités, etc.) viendront ici.")
-        sous_titre.setAlignment(Qt.AlignCenter)
+        # ---------------- Titre ----------------
+        self.titre = QLabel("🏠 Accueil - Covoiturage")
+        self.titre.setAlignment(Qt.AlignCenter)
+        self.titre.setStyleSheet(
+            "font-size: 20px; font-weight: bold; margin-bottom: 20px;"
+        )
 
-        btn_deconnexion = QPushButton("Se déconnecter")
-        btn_deconnexion.clicked.connect(self.controller.go_login)
+        # ---------------- Label utilisateur ----------------
+        self.label_user = QLabel("Bienvenue !")
+        self.label_user.setAlignment(Qt.AlignCenter)
+        self.label_user.setStyleSheet("font-size: 15px; margin-bottom: 20px;")
 
-        layout.addWidget(titre)
-        layout.addWidget(sous_titre)
-        layout.addWidget(btn_deconnexion)
-        layout.addStretch()
-        self.setLayout(layout)
+        # ---------------- Boutons ----------------
+        self.btn_profil = QPushButton("Gérer mon profil")
+        self.btn_voiture = QPushButton("Ma voiture")
+        self.btn_indispo = QPushButton("Mes indisponibilités")
+        self.btn_matching = QPushButton("Trouver des covoitureurs")
+        self.btn_trajets = QPushButton("Mes trajets")
+        self.btn_bilan = QPushButton("Mon bilan carbone & coûts")
+        self.btn_edt = QPushButton("Mettre à jour mon emploi du temps")
+        self.btn_logout = QPushButton("🚪 Se déconnecter")
+
+        # ---------------- Actions ----------------
+        self.btn_profil.clicked.connect(self.controller.go_profile)
+        self.btn_voiture.clicked.connect(self.controller.go_voiture)
+
+        self.btn_indispo.clicked.connect(
+            lambda: self.controller.main.show_message("Fonctionnalité en cours d'implémentation")
+        )
+        self.btn_matching.clicked.connect(
+            lambda: self.controller.main.show_message("Fonctionnalité en cours d'implémentation")
+        )
+        self.btn_trajets.clicked.connect(
+            lambda: self.controller.main.show_message("Fonctionnalité en cours d'implémentation")
+        )
+        self.btn_bilan.clicked.connect(
+            lambda: self.controller.main.show_message("Fonctionnalité en cours d'implémentation")
+        )
+
+        # Navigation
+        self.btn_edt.clicked.connect(self.controller.go_edt_import)
+        self.btn_logout.clicked.connect(self.controller.logout)
+
+        # ---------------- Layout ----------------
+        self.layout.addWidget(self.titre)
+        self.layout.addWidget(self.label_user)
+        self.layout.addWidget(self.btn_profil)
+        self.layout.addWidget(self.btn_voiture)
+        self.layout.addWidget(self.btn_indispo)
+        self.layout.addWidget(self.btn_matching)
+        self.layout.addWidget(self.btn_trajets)
+        self.layout.addWidget(self.btn_bilan)
+        self.layout.addWidget(self.btn_edt)
+        self.layout.addWidget(self.btn_logout)
+        self.layout.addStretch()
+
+    def showEvent(self, event):
+        """
+        Rafraîchit le nom de l'utilisateur quand la page est affichée.
+        """
+        if self.controller.current_user:
+            user = self.controller.current_user
+            self.label_user.setText(f"Bienvenue, {user['prenom']} {user['nom']} !")
+        else:
+            self.label_user.setText("Bienvenue !")
+
+        super().showEvent(event)

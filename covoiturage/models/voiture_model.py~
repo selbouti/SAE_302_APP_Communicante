@@ -1,0 +1,43 @@
+from config.database import get_connection
+
+class VoitureModel:
+
+    def get_voiture_by_user(self, user_id):
+        conn = get_connection()
+        cur = conn.cursor(dictionary=True)
+
+        cur.execute("SELECT * FROM Voiture WHERE user_id=%s", (user_id,))
+        car = cur.fetchone()
+
+        cur.close()
+        conn.close()
+        return car
+
+    def add_voiture(self, user_id, data):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        sql = """
+        INSERT INTO Voiture (user_id, marque, modele, chevaux_fiscaux,
+                             motorisation, taux_co2, places_max)
+        VALUES (%s,%s,%s,%s,%s,%s,%s)
+        """
+
+        cur.execute(sql, (
+            user_id, data["marque"], data["modele"], data["chevaux_fiscaux"],
+            data["motorisation"], data["taux_co2"], data["places_max"]
+        ))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+    def delete_voiture(self, voiture_id):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("DELETE FROM Voiture WHERE id_voiture=%s", (voiture_id,))
+        conn.commit()
+
+        cur.close()
+        conn.close()

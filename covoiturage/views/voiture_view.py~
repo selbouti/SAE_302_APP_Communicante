@@ -1,0 +1,76 @@
+# views/voiture_view.py
+
+from PyQt5.QtWidgets import (
+    QWidget, QVBoxLayout, QLabel, QLineEdit,
+    QPushButton, QFormLayout, QComboBox
+)
+from PyQt5.QtCore import Qt
+
+
+class VoitureView(QWidget):
+    """
+    Gestion de la voiture utilisateur.
+    """
+
+    def __init__(self, controller):
+        super().__init__()
+        self.controller = controller
+
+        layout = QVBoxLayout()
+        form = QFormLayout()
+
+        self.title = QLabel("🚗 Ma voiture")
+        self.title.setAlignment(Qt.AlignCenter)
+        self.title.setStyleSheet("font-size:18px;font-weight:bold;")
+
+        self.marque = QLineEdit()
+        self.modele = QLineEdit()
+        self.chevaux = QLineEdit()
+        self.places = QLineEdit()
+        self.co2 = QLineEdit()
+
+        self.motorisation = QComboBox()
+        self.motorisation.addItems(
+            ["thermique", "hybride", "electrique", "hydrogene"]
+        )
+
+        form.addRow("Marque", self.marque)
+        form.addRow("Modèle", self.modele)
+        form.addRow("Chevaux fiscaux", self.chevaux)
+        form.addRow("Places", self.places)
+        form.addRow("CO₂ (g/km)", self.co2)
+        form.addRow("Motorisation", self.motorisation)
+
+        self.btn_save = QPushButton("💾 Enregistrer")
+        self.btn_delete = QPushButton("❌ Supprimer la voiture")
+        self.btn_back = QPushButton("⬅ Retour")
+
+        self.btn_save.clicked.connect(self.save)
+        self.btn_delete.clicked.connect(self.delete)
+        self.btn_back.clicked.connect(self.controller.go_home)
+
+        layout.addWidget(self.title)
+        layout.addLayout(form)
+        layout.addWidget(self.btn_save)
+        layout.addWidget(self.btn_delete)
+        layout.addWidget(self.btn_back)
+        layout.addStretch()
+        self.setLayout(layout)
+
+    def save(self):
+        data = {
+            "marque": self.marque.text(),
+            "modele": self.modele.text(),
+            "chevaux_fiscaux": int(self.chevaux.text()),
+            "places_max": int(self.places.text()),
+            "taux_co2": int(self.co2.text()),
+            "motorisation": self.motorisation.currentText()
+        }
+        self.controller.add_voiture(data)
+
+    def delete(self):
+        voiture = self.controller.voiture_model.get_user_voiture(
+            self.controller.current_user["id_user"]
+        )
+        if voiture:
+            self.controller.delete_voiture(voiture["id_voiture"])
