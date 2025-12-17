@@ -1,0 +1,51 @@
+# models/edt_model.py
+
+from config.database import get_connection
+
+
+class EDTModel:
+
+    def get_edt(self, user_id):
+        conn = get_connection()
+        cur = conn.cursor(dictionary=True)
+
+        cur.execute("""
+            SELECT * FROM EmploiDuTemps
+            WHERE user_id = %s
+            LIMIT 1
+        """, (user_id,))
+
+        edt = cur.fetchone()
+
+        cur.close()
+        conn.close()
+        return edt
+
+    def save_edt_file(self, user_id, file_path):
+        self._replace_edt(user_id, "fichier", file_path)
+
+    def save_edt_url(self, user_id, url):
+        self._replace_edt(user_id, "url", url)
+
+    def _replace_edt(self, user_id, source_type, source):
+        """
+        Supprime l'ancien EDT et insère le nouveau
+        """
+        conn = get_connection()
+        cur = conn.cursor()
+
+        # 🔥 SUPPRESSION ANCIEN EDT
+        cur.execute(
+            "DELETE FROM EmploiDuTemps WHERE user_id = %s",
+            (user_id,)
+        )
+
+        # ➕ INSERT NOUVEL EDT
+        cur.execute("""
+            INSERT INTO EmploiDuTemps (user_id, source_type, source)
+            VALUES (%s, %s, %s)
+        """, (user_id, source_type, source))
+
+        conn.commit()
+        cur.close()
+        conn.close()

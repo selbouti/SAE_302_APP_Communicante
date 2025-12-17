@@ -1,0 +1,60 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//SAE Covoiturage//Passager//FR
+CALSCALE:GREGORIAN
+
+BEGIN:VEVENT
+UID:pass-morning-exact@sae
+DTSTART:20251118T073000
+DTEND:20251118T083000
+SUMMARY:Cours du matin
+LOCATION:Domicile Bob, Poitiers
+DESCRIPTION:Arrivée: Campus Universitaire, Poitiers
+END:VEVENT
+
+BEGIN:VEVENT
+UID:pass-morning-plus10@sae
+DTSTART:20251119T081000
+DTEND:20251119T091000
+SUMMARY:Cours du matin décalé
+LOCATION:Domicile Bob, Poitiers
+DESCRIPTION:Arrivée: Campus Universitaire, Poitiers
+END:VEVENT
+
+BEGIN:VEVENT
+UID:pass-morning-plus30@sae
+DTSTART:20251120T083000
+DTEND:20251120T093000
+SUMMARY:Cours du matin très décalé
+LOCATION:Domicile Bob, Poitiers
+DESCRIPTION:Arrivée: Campus Universitaire, Poitiers
+END:VEVENT
+
+BEGIN:VEVENT
+UID:pass-evening-plus60@sae
+DTSTART:20251118T180000
+DTEND:20251118T190000
+SUMMARY:Retour tardif
+LOCATION:Campus Universitaire, Poitiers
+DESCRIPTION:Arrivée: Domicile Bob, Poitiers
+END:VEVENT
+
+BEGIN:VEVENT
+UID:pass-no-match@sae
+DTSTART:20251121T060000
+DTEND:20251121T070000
+SUMMARY:Stage externe
+LOCATION:Domicile Bob, Poitiers
+DESCRIPTION:Arrivée: Zone Industrielle Chasseneuil
+END:VEVENT
+
+BEGIN:VEVENT
+UID:pass-plus120@sae
+DTSTART:20251119T100000
+DTEND:20251119T110000
+SUMMARY:Cours tardif
+LOCATION:Domicile Bob, Poitiers
+DESCRIPTION:Arrivée: Campus Universitaire, Poitiers
+END:VEVENT
+
+END:VCALENDAR

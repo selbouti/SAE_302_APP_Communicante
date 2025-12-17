@@ -1,0 +1,51 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//SAE Covoiturage//Conducteur//FR
+CALSCALE:GREGORIAN
+
+BEGIN:VEVENT
+UID:cond-morning-1@sae
+DTSTART:20251118T073000
+DTEND:20251118T083000
+SUMMARY:Trajet domicile → travail
+LOCATION:Domicile Alice, Poitiers
+DESCRIPTION:Arrivée: Campus Universitaire, Poitiers
+END:VEVENT
+
+BEGIN:VEVENT
+UID:cond-evening-1@sae
+DTSTART:20251118T170000
+DTEND:20251118T180000
+SUMMARY:Trajet travail → domicile
+LOCATION:Campus Universitaire, Poitiers
+DESCRIPTION:Arrivée: Domicile Alice, Poitiers
+END:VEVENT
+
+BEGIN:VEVENT
+UID:cond-morning-2@sae
+DTSTART:20251119T080000
+DTEND:20251119T0900
+SUMMARY:Trajet domicile → travail
+LOCATION:Domicile Alice, Poitiers
+DESCRIPTION:Arrivée: Campus Universitaire, Poitiers
+END:VEVENT
+
+BEGIN:VEVENT
+UID:cond-evening-2@sae
+DTSTART:20251119T180000
+DTEND:20251119T190000
+SUMMARY:Trajet travail → domicile
+LOCATION:Campus Universitaire, Poitiers
+DESCRIPTION:Arrivée: Domicile Alice, Poitiers
+END:VEVENT
+
+BEGIN:VEVENT
+UID:cond-extra@sae
+DTSTART:20251120T120000
+DTEND:20251120T130000
+SUMMARY:Déplacement personnel
+LOCATION:Centre-ville Poitiers
+DESCRIPTION:Arrivée: Gare SNCF Poitiers
+END:VEVENT
+
+END:VCALENDAR

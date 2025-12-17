@@ -1,0 +1,290 @@
+DROP DATABASE IF EXISTS covoiturage;
+
+CREATE DATABASE covoiturage
+DEFAULT CHARACTER SET utf8mb4
+DEFAULT COLLATE utf8mb4_unicode_ci;
+
+USE covoiturage;
+
+-- ============================
+-- TABLE : Utilisateur
+-- ============================
+CREATE TABLE Utilisateur (
+	id_user INT AUTO_INCREMENT PRIMARY KEY,
+
+	-- AUTHENTIFICATION
+	login VARCHAR(50) NOT NULL UNIQUE,
+	mot_de_passe VARCHAR(255) NOT NULL,
+
+	-- INFORMATIONS PERSONNELLES
+	nom VARCHAR(100) NOT NULL,
+	prenom VARCHAR(100) NOT NULL,
+	email VARCHAR(150) NOT NULL UNIQUE,
+	telephone VARCHAR(20),
+	adresse VARCHAR(255),
+	ville VARCHAR(100),
+	cp VARCHAR(10),
+
+	-- COORDONNÉES GPS
+	latitude DECIMAL(10,8),
+	longitude DECIMAL(11,8),
+
+	-- BILANS DEMANDÉS PAR LE CAHIER DES CHARGES
+	cout_cumule DECIMAL(10,2) DEFAULT 0,
+	bilan_carbone DECIMAL(10,2) DEFAULT 0,
+
+	date_inscription DATE NOT NULL DEFAULT (CURRENT_DATE)
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE : Voiture
+-- ============================
+CREATE TABLE Voiture (
+	id_voiture INT AUTO_INCREMENT PRIMARY KEY,
+	user_id INT NOT NULL,
+
+	marque VARCHAR(100) NOT NULL,
+	modele VARCHAR(100) NOT NULL,
+	chevaux_fiscaux INT NOT NULL,
+	motorisation VARCHAR(20) NOT NULL,
+	taux_co2 INT NOT NULL,
+	places_max INT NOT NULL,
+
+	CONSTRAINT fk_voiture_user
+    	FOREIGN KEY (user_id) REFERENCES Utilisateur(id_user)
+    	ON DELETE CASCADE,
+
+	CONSTRAINT check_motorisation
+    	CHECK (motorisation IN ('thermique','hybride','hydrogene','electrique'))
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE : IndisponibiliteVoiture
+-- ============================
+CREATE TABLE IndisponibiliteVoiture (
+	id_indispo INT AUTO_INCREMENT PRIMARY KEY,
+	voiture_id INT NOT NULL,
+	date_indispo DATE NOT NULL,
+
+	CONSTRAINT fk_indispo_voiture
+    	FOREIGN KEY (voiture_id) REFERENCES Voiture(id_voiture)
+    	ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE : Trajet
+-- ============================
+CREATE TABLE Trajet (
+	id_trajet INT AUTO_INCREMENT PRIMARY KEY,
+	conducteur_id INT NOT NULL,
+	voiture_id INT NOT NULL,
+
+	date_depart DATE NOT NULL,
+	heure_depart TIME NOT NULL,
+	date_arrivee DATE NOT NULL,
+	heure_arrivee TIME NOT NULL,
+
+	lieu_depart VARCHAR(255) NOT NULL,
+	lieu_arrivee VARCHAR(255) NOT NULL,
+
+	kilometrage INT NOT NULL,
+	cout_peage DECIMAL(8,2),
+
+	solution_validee BOOLEAN DEFAULT FALSE,
+
+	CONSTRAINT fk_trajet_conducteur
+    	FOREIGN KEY (conducteur_id) REFERENCES Utilisateur(id_user)
+    	ON DELETE CASCADE,
+
+	CONSTRAINT fk_trajet_voiture
+    	FOREIGN KEY (voiture_id) REFERENCES Voiture(id_voiture)
+    	ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE : Reservation
+-- ============================
+CREATE TABLE Reservation (
+	id_reservation INT AUTO_INCREMENT PRIMARY KEY,
+	trajet_id INT NOT NULL,
+	passager_id INT NOT NULL,
+	etat VARCHAR(20) NOT NULL,
+
+	CONSTRAINT fk_reservation_trajet
+    	FOREIGN KEY (trajet_id) REFERENCES Trajet(id_trajet)
+    	ON DELETE CASCADE,
+
+	CONSTRAINT fk_reservation_passager
+    	FOREIGN KEY (passager_id) REFERENCES Utilisateur(id_user)
+    	ON DELETE CASCADE,
+
+	CONSTRAINT check_etat_reservation
+    	CHECK (etat IN ('en_cours','acceptee','refusee')),
+
+	CONSTRAINT unique_reservation UNIQUE (trajet_id, passager_id)
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE : Invitation
+-- ============================
+CREATE TABLE Invitation (
+	id_invitation INT AUTO_INCREMENT PRIMARY KEY,
+	trajet_id INT NOT NULL,
+	id_invite INT NOT NULL,
+	etat VARCHAR(20) NOT NULL,
+
+	CONSTRAINT fk_invitation_trajet
+    	FOREIGN KEY (trajet_id) REFERENCES Trajet(id_trajet)
+    	ON DELETE CASCADE,
+
+	CONSTRAINT fk_invitation_user
+    	FOREIGN KEY (id_invite) REFERENCES Utilisateur(id_user)
+    	ON DELETE CASCADE,
+
+	CONSTRAINT check_etat_invitation
+    	CHECK (etat IN ('en_cours','acceptee','refusee')),
+
+	CONSTRAINT unique_invitation UNIQUE (trajet_id, id_invite)
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE : EmploiDuTemps
+-- ============================
+CREATE TABLE EmploiDuTemps (
+	id_edt INT AUTO_INCREMENT PRIMARY KEY,
+	user_id INT NOT NULL,
+	source_type VARCHAR(20) NOT NULL,
+	source VARCHAR(255) NOT NULL,
+
+	CONSTRAINT fk_edt_user
+    	FOREIGN KEY (user_id) REFERENCES Utilisateur(id_user)
+    	ON DELETE CASCADE,
+
+	CONSTRAINT check_source_type
+    	CHECK (source_type IN ('fichier','lien'))
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE : Disponibilite
+-- ============================
+CREATE TABLE Disponibilite (
+	id_dispo INT AUTO_INCREMENT PRIMARY KEY,
+	user_id INT NOT NULL,
+	date_dispo DATE NOT NULL,
+	heure_debut TIME NOT NULL,
+	heure_fin TIME NOT NULL,
+
+	CONSTRAINT fk_dispo_user
+    	FOREIGN KEY (user_id) REFERENCES Utilisateur(id_user)
+    	ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE : ParametrageUtilisateur
+-- ✅ marge 15 / 30 / 60 / 120 / 180 minutes
+-- ============================
+CREATE TABLE ParametrageUtilisateur (
+	user_id INT PRIMARY KEY,
+	marge_minutes INT NOT NULL,
+
+	CONSTRAINT fk_param_user
+    	FOREIGN KEY (user_id) REFERENCES Utilisateur(id_user)
+    	ON DELETE CASCADE,
+
+	CONSTRAINT check_marge
+    	CHECK (marge_minutes IN (15, 30, 60, 120, 180))
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE : CreneauEDT (✅ NOUVELLE TABLE)
+-- ============================
+CREATE TABLE CreneauEDT (
+	id_creneau INT AUTO_INCREMENT PRIMARY KEY,
+	user_id INT NOT NULL,
+
+	date_creneau DATE NOT NULL,
+	heure_depart TIME NOT NULL,
+	heure_retour TIME NOT NULL,
+
+	type_jour VARCHAR(20) DEFAULT 'travail',
+
+	CONSTRAINT fk_creneau_user
+    	FOREIGN KEY (user_id) REFERENCES Utilisateur(id_user)
+    	ON DELETE CASCADE,
+
+	CONSTRAINT check_heure_creneau
+    	CHECK (heure_retour > heure_depart)
+) ENGINE=InnoDB;
+
+
+
+
+
+USE covoiturage;
+
+-- UTILISATEURS
+INSERT INTO Utilisateur (login, mot_de_passe, nom, prenom, email, telephone, ville, cp, latitude, longitude)
+VALUES
+('jean1', 'hash1', 'Dupont', 'Jean', 'jean@mail.com', '0611111111', 'Paris', '75000', 48.8566, 2.3522),
+('claire2', 'hash2', 'Martin', 'Claire', 'claire@mail.com', '0622222222', 'Paris', '75000', 48.8566, 2.3522),
+('luc3', 'hash3', 'Bernard', 'Luc', 'luc@mail.com', '0633333333', 'Paris', '75000', 48.8566, 2.3522);
+
+-- PARAMÉTRAGE UTILISATEUR
+INSERT INTO ParametrageUtilisateur VALUES
+(1, 30),
+(2, 60),
+(3, 180);
+
+-- VOITURES
+INSERT INTO Voiture (user_id, marque, modele, chevaux_fiscaux, motorisation, taux_co2, places_max)
+VALUES
+(1, 'Peugeot', '308', 6, 'thermique', 120, 5),
+(2, 'Toyota', 'Corolla', 5, 'hybride', 90, 5),
+(3, 'Tesla', 'Model 3', 8, 'electrique', 0, 5);
+
+-- INDISPONIBILITÉ VOITURE
+INSERT INTO IndisponibiliteVoiture (voiture_id, date_indispo)
+VALUES
+(1, '2025-12-10'),
+(2, '2025-12-11');
+
+-- EMPLOI DU TEMPS
+INSERT INTO EmploiDuTemps (user_id, source_type, source)
+VALUES
+(1, 'fichier', 'edt_jean.ics'),
+(2, 'lien', 'https://edt_claire.com'),
+(3, 'fichier', 'edt_luc.ics');
+
+-- DISPONIBILITÉS
+INSERT INTO Disponibilite (user_id, date_dispo, heure_debut, heure_fin)
+VALUES
+(1, '2025-12-12', '07:30:00', '18:00:00'),
+(2, '2025-12-12', '08:00:00', '17:30:00'),
+(3, '2025-12-12', '07:45:00', '18:15:00');
+
+-- CRÉNEAUX CALENDRIER
+INSERT INTO CreneauEDT (user_id, date_creneau, heure_depart, heure_retour)
+VALUES
+(1, '2025-12-12', '08:00:00', '17:30:00'),
+(2, '2025-12-12', '08:15:00', '17:45:00'),
+(3, '2025-12-12', '07:45:00', '18:00:00');
+
+-- TRAJETS
+INSERT INTO Trajet (conducteur_id, voiture_id, date_depart, heure_depart, date_arrivee, heure_arrivee,
+lieu_depart, lieu_arrivee, kilometrage, cout_peage)
+VALUES
+(1, 1, '2025-12-12', '08:00:00', '2025-12-12', '09:30:00', 'Paris', 'Créteil', 25, 4.50),
+(2, 2, '2025-12-12', '08:15:00', '2025-12-12', '09:45:00', 'Paris', 'Créteil', 25, 4.50);
+
+-- RÉSERVATIONS
+INSERT INTO Reservation (trajet_id, passager_id, etat)
+VALUES
+(1, 2, 'acceptee'),
+(1, 3, 'en_cours');
+
+-- INVITATIONS
+INSERT INTO Invitation (trajet_id, id_invite, etat)
+VALUES
+(2, 1, 'en_cours'),
+(2, 3, 'refusee');
+

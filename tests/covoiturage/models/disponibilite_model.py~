@@ -1,0 +1,40 @@
+from config.database import get_connection
+
+
+class DisponibiliteModel:
+
+    def clear_user_dispos(self, user_id, date_dispo):
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "DELETE FROM Disponibilite WHERE user_id=%s AND date_dispo=%s",
+            (user_id, date_dispo)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+    def add_dispo(self, user_id, date_dispo, heure_debut, heure_fin):
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO Disponibilite (user_id, date_dispo, heure_debut, heure_fin)
+            VALUES (%s, %s, %s, %s)
+        """, (user_id, date_dispo, heure_debut, heure_fin))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+    def get_user_dispos(self, user_id):
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT date_dispo, heure_debut, heure_fin
+            FROM Disponibilite
+            WHERE user_id=%s
+            ORDER BY date_dispo, heure_debut
+        """, (user_id,))
+        result = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return result
