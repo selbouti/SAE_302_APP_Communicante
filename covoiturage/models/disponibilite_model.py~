@@ -38,17 +38,3 @@ class DisponibiliteModel:
         cursor.close()
         conn.close()
         return result
-
-    def get_user_dispos_for_day(self, user_id, date_dispo):
-        conn = get_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT heure_debut, heure_fin
-            FROM Disponibilite
-            WHERE user_id=%s AND date_dispo=%s
-            ORDER BY heure_debut
-        """, (user_id, date_dispo))
-        result = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return result

@@ -19,9 +19,7 @@ class HomePage(QWidget):
         # ---------------- Titre ----------------
         self.titre = QLabel("🏠 Accueil - Covoiturage")
         self.titre.setAlignment(Qt.AlignCenter)
-        self.titre.setStyleSheet(
-            "font-size: 20px; font-weight: bold; margin-bottom: 20px;"
-        )
+        self.titre.setStyleSheet("font-size: 20px; font-weight: bold; margin-bottom: 20px;")
 
         # ---------------- Label utilisateur ----------------
         self.label_user = QLabel("Bienvenue !")
@@ -31,7 +29,7 @@ class HomePage(QWidget):
         # ---------------- Boutons ----------------
         self.btn_profil = QPushButton("Gérer mon profil")
         self.btn_voiture = QPushButton("Ma voiture")
-        self.btn_indispo = QPushButton("Mes disponibilités")
+        self.btn_indispo = QPushButton("Mes indisponibilités")
         self.btn_matching = QPushButton("Trouver des covoitureurs")
         self.btn_trajets = QPushButton("Mes trajets")
         self.btn_bilan = QPushButton("Mon bilan carbone & coûts")
@@ -41,8 +39,10 @@ class HomePage(QWidget):
         # ---------------- Actions ----------------
         self.btn_profil.clicked.connect(self.controller.go_profile)
         self.btn_voiture.clicked.connect(self.controller.go_voiture)
-        self.btn_indispo.clicked.connect(self.controller.go_dispo)   # ✅ CORRECTION
 
+        self.btn_indispo.clicked.connect(
+            lambda: self.controller.main.show_message("Fonctionnalité en cours d'implémentation")
+        )
         self.btn_matching.clicked.connect(
             lambda: self.controller.main.show_message("Fonctionnalité en cours d'implémentation")
         )
