@@ -5,7 +5,7 @@ DB_CONFIG = {
     "host": "localhost",
     "user": "covoiturage_app",
     "password": "MotDePasseSuperSecure123!",  # TODO: adapter
-    "database": "covoiturage",
+    "database": "covoiturage_2",
 }
 
 
@@ -22,18 +22,3 @@ def get_connection():
         return None
     
 
-def get_trajet(self, id_trajet):
-     cursor = self.conn.cursor(dictionary=True)
-     cursor.execute(
-        "SELECT * FROM trajet WHERE id_trajet = %s",
-        (id_trajet,)
-     )
-     return cursor.fetchone()
-
-def insert_reservation(self, id_trajet, id_passager, statut):
-     cursor = self.conn.cursor()
-     cursor.execute(
-        "INSERT INTO reservation (id_trajet, id_passager, statut) VALUES (%s, %s, %s)",
-        (id_trajet, id_passager, statut)
-     )
-     self.conn.commit()
