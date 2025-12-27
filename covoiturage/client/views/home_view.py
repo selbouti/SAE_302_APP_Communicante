@@ -1,81 +1,41 @@
-# views/home_view.py
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
-from PyQt5.QtCore import Qt
-
-
-class HomePage(QWidget):
-    """
-    Page d'accueil après connexion.
-    Contient les boutons d'accès aux différentes fonctionnalités.
-    """
-
-    def __init__(self, controller):
+class HomeView(QWidget):
+    def __init__(self, main_window):
         super().__init__()
-        self.controller = controller
-
-        self.layout = QVBoxLayout(self)
-
-        # ---------------- Titre ----------------
-        self.titre = QLabel("🏠 Accueil - Covoiturage")
-        self.titre.setAlignment(Qt.AlignCenter)
-        self.titre.setStyleSheet(
-            "font-size: 20px; font-weight: bold; margin-bottom: 20px;"
-        )
-
-        # ---------------- Label utilisateur ----------------
-        self.label_user = QLabel("Bienvenue !")
-        self.label_user.setAlignment(Qt.AlignCenter)
-        self.label_user.setStyleSheet("font-size: 15px; margin-bottom: 20px;")
-
-        # ---------------- Boutons ----------------
-        self.btn_profil = QPushButton("Gérer mon profil")
-        self.btn_voiture = QPushButton("Ma voiture")
-        self.btn_indispo = QPushButton("Mes disponibilités")
-        self.btn_matching = QPushButton("Trouver des covoitureurs")
-        self.btn_trajets = QPushButton("Mes trajets")
-        self.btn_bilan = QPushButton("Mon bilan carbone & coûts")
-        self.btn_edt = QPushButton("Mettre à jour mon emploi du temps")
-        self.btn_logout = QPushButton("🚪 Se déconnecter")
-
-        # ---------------- Actions ----------------
-        self.btn_profil.clicked.connect(self.controller.go_profile)
-        self.btn_voiture.clicked.connect(self.controller.go_voiture)
-        self.btn_indispo.clicked.connect(self.controller.go_dispo)   # ✅ CORRECTION
-
-        self.btn_matching.clicked.connect(
-            lambda: self.controller.main.show_message("Fonctionnalité en cours d'implémentation")
-        )
-        self.btn_trajets.clicked.connect(
-            lambda: self.controller.main.show_message("Fonctionnalité en cours d'implémentation")
-        )
-        self.btn_bilan.clicked.connect(
-            lambda: self.controller.main.show_message("Fonctionnalité en cours d'implémentation")
-        )
-
-        self.btn_edt.clicked.connect(self.controller.go_edt_import)
-        self.btn_logout.clicked.connect(self.controller.logout)
-
-        # ---------------- Layout ----------------
-        for widget in [
-            self.titre, self.label_user,
-            self.btn_profil, self.btn_voiture,
-            self.btn_indispo, self.btn_matching,
-            self.btn_trajets, self.btn_bilan,
-            self.btn_edt, self.btn_logout
-        ]:
-            self.layout.addWidget(widget)
-
-        self.layout.addStretch()
-
-    def showEvent(self, event):
-        """
-        Rafraîchit le nom de l'utilisateur quand la page est affichée.
-        """
-        if self.controller.current_user:
-            user = self.controller.current_user
-            self.label_user.setText(f"Bienvenue, {user['prenom']} {user['nom']} !")
+        self.main_window = main_window
+        self.setup_ui()
+    
+    def setup_ui(self):
+        layout = QVBoxLayout()
+        
+        user = self.main_window.current_user
+        if user:
+            welcome_text = f"Bienvenue {user.get('prenom', '')} {user.get('nom', '')}"
         else:
-            self.label_user.setText("Bienvenue !")
-
-        super().showEvent(event)
+            welcome_text = "Bienvenue"
+        
+        layout.addWidget(QLabel(welcome_text))
+        layout.addWidget(QLabel("Choisissez une action:"))
+        
+        btns = QHBoxLayout()
+        
+        btn1 = QPushButton("Voir matching")
+        btn1.clicked.connect(lambda: self.main_window.switch_to('matching'))
+        btns.addWidget(btn1)
+        
+        btn2 = QPushButton("Mes trajets")
+        btn2.clicked.connect(lambda: self.main_window.switch_to('mes_trajets'))
+        btns.addWidget(btn2)
+        
+        btn3 = QPushButton("Mes réservations")
+        btn3.clicked.connect(lambda: self.main_window.switch_to('mes_reservations'))
+        btns.addWidget(btn3)
+        
+        layout.addLayout(btns)
+        
+        logout = QPushButton("Déconnexion")
+        logout.clicked.connect(lambda: self.main_window.switch_to('login'))
+        layout.addWidget(logout)
+        
+        self.setLayout(layout)

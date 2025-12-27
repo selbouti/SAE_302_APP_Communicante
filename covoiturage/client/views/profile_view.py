@@ -1,79 +1,55 @@
-# views/profile_view.py
-
-from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QLineEdit,
-    QPushButton, QFormLayout
-)
-from PyQt5.QtCore import Qt
-
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton
 
 class ProfileView(QWidget):
-    """
-    Page de modification du profil utilisateur.
-    """
-
-    def __init__(self, controller):
+    def __init__(self, user_controller, main_window=None):
         super().__init__()
-        self.controller = controller
+        self.user_controller = user_controller
+        self.main_window = main_window
 
         layout = QVBoxLayout()
-        form = QFormLayout()
 
-        self.title = QLabel("👤 Modifier mon profil")
-        self.title.setAlignment(Qt.AlignCenter)
-        self.title.setStyleSheet("font-size:18px;font-weight:bold;")
+        self.label = QLabel("Profil")
+        self.nom_input = QLineEdit()
+        self.prenom_input = QLineEdit()
+        self.email_input = QLineEdit()
+        self.update_button = QPushButton("Mettre à jour")
+        self.back_button = QPushButton("Retour")
 
-        # Champs utilisateur
-        self.nom = QLineEdit()
-        self.prenom = QLineEdit()
-        self.email = QLineEdit()
-        self.telephone = QLineEdit()
-        self.adresse = QLineEdit()
-        self.ville = QLineEdit()
-        self.cp = QLineEdit()
+        layout.addWidget(self.label)
+        layout.addWidget(self.nom_input)
+        layout.addWidget(self.prenom_input)
+        layout.addWidget(self.email_input)
+        layout.addWidget(self.update_button)
+        layout.addWidget(self.back_button)
 
-        form.addRow("Nom", self.nom)
-        form.addRow("Prénom", self.prenom)
-        form.addRow("Email", self.email)
-        form.addRow("Téléphone", self.telephone)
-        form.addRow("Adresse", self.adresse)
-        form.addRow("Ville", self.ville)
-        form.addRow("Code postal", self.cp)
-
-        self.btn_save = QPushButton("💾 Enregistrer")
-        self.btn_back = QPushButton("⬅ Retour")
-
-        self.btn_save.clicked.connect(self.save)
-        self.btn_back.clicked.connect(self.controller.go_home)
-
-        layout.addWidget(self.title)
-        layout.addLayout(form)
-        layout.addWidget(self.btn_save)
-        layout.addWidget(self.btn_back)
-        layout.addStretch()
         self.setLayout(layout)
 
-    def showEvent(self, event):
-        """Pré-remplit les champs avec les infos actuelles."""
-        user = self.controller.current_user
-        if user:
-            self.nom.setText(user["nom"])
-            self.prenom.setText(user["prenom"])
-            self.email.setText(user["email"])
-            self.telephone.setText(user["telephone"])
-            self.adresse.setText(user["adresse"])
-            self.ville.setText(user["ville"])
-            self.cp.setText(user["cp"])
-        super().showEvent(event)
+        self.update_button.clicked.connect(self.update_profile)
+        self.back_button.clicked.connect(self.go_back)
 
-    def save(self):
+    def load_user(self, user_id):
+        response = self.user_controller.get_user(user_id)
+        if response.get("success"):
+            user = response["user"]
+            self.nom_input.setText(user.get("nom", ""))
+            self.prenom_input.setText(user.get("prenom", ""))
+            self.email_input.setText(user.get("email", ""))
+
+    def update_profile(self):
         data = {
-            "nom": self.nom.text(),
-            "prenom": self.prenom.text(),
-            "email": self.email.text(),
-            "telephone": self.telephone.text(),
-            "adresse": self.adresse.text(),
-            "ville": self.ville.text(),
-            "cp": self.cp.text()
+            "nom": self.nom_input.text(),
+            "prenom": self.prenom_input.text(),
+            "email": self.email_input.text()
         }
-        self.controller.update_profile(data)
+        # Pour l’exemple, user_id=1
+        response = self.user_controller.update_user(1, data)
+        if response.get("success"):
+            if self.main_window:
+                self.main_window.show_message("Profil mis à jour !")
+        else:
+            if self.main_window:
+                self.main_window.show_error(response.get("message", "Erreur"))
+
+    def go_back(self):
+        if self.main_window:
+            self.main_window.show_home_page()
