@@ -1,27 +1,24 @@
 from flask import Flask
-from config.database import get_connection
-from controllers.gestion_res_controller import ReservationController
+from flask_cors import CORS
+from config_db.database import init_db
 
-def create_app():
-    """
-    Crée et configure l'application Flask.
-    """
-    app = Flask(__name__)
+app = Flask(__name__)
+CORS(app)
 
-    # Configuration de la base de données
-    db_connection = get_connection()
+from controllers.user_controller import user_bp
+from controllers.voiture_controller import voiture_bp
+from controllers.trajet_controller import trajet_bp
+from controllers.matching_controller import matching_bp
+from controllers.reservation_controller import reservation_bp
+from controllers.invitation_controller import invitation_bp
 
-    # Enregistrement des contrôleurs
-    ReservationController(app, db_connection)
+app.register_blueprint(user_bp)
+app.register_blueprint(voiture_bp)
+app.register_blueprint(trajet_bp)
+app.register_blueprint(matching_bp)
+app.register_blueprint(reservation_bp)
+app.register_blueprint(invitation_bp)
 
-    return app
-
-def main():
-    """
-    Point d'entrée principal de l'application.
-    """
-    app = create_app()
-    app.run(debug=True, host="0.0.0.0", port=5000)
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    init_db()
+    app.run(debug=True, host='127.0.0.1', port=5000)
