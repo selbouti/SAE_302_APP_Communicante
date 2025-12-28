@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTableWidget, QTableWidgetItem
 from services.api_service import APIService
+from controllers.invitation_controller import InvitationController
 
 class MesReservationsView(QWidget):
     def __init__(self, main_window):
@@ -9,7 +10,9 @@ class MesReservationsView(QWidget):
     
     def setup_ui(self):
         layout = QVBoxLayout()
-        layout.addWidget(QLabel("Mes réservations et invitations"))
+        title = QLabel("Mes réservations et invitations")
+        title.setObjectName("titleLabel")
+        layout.addWidget(title)
         
         self.table = QTableWidget()
         self.table.setColumnCount(8)
@@ -26,17 +29,61 @@ class MesReservationsView(QWidget):
         
         layout.addStretch()
         self.setLayout(layout)
+        self.setStyleSheet("""
+            QWidget {
+                background: #ffffff;
+                color: #1e1e1e;
+                font-family: "Open Sans", "Segoe UI", Arial, sans-serif;
+                font-size: 14px;
+            }
+            QLabel#titleLabel {
+                color: #b00020;
+                font-size: 22px;
+                font-weight: 700;
+                padding: 4px 0 8px 0;
+            }
+            QPushButton {
+                background-color: #c21807;
+                color: #ffffff;
+                border: 1px solid #9c1a06;
+                border-radius: 6px;
+                padding: 8px 12px;
+                font-weight: 600;
+            }
+            QPushButton:hover { background-color: #d6281a; }
+            QPushButton:pressed { background-color: #8c1505; }
+            QTableWidget {
+                border: 1px solid #e6e6e6;
+                border-radius: 6px;
+                gridline-color: #e6e6e6;
+                selection-background-color: #ffe6e6;
+                selection-color: #b00020;
+            }
+            QHeaderView::section {
+                background: #f7f7f7;
+                color: #b00020;
+                padding: 6px;
+                border: 1px solid #e6e6e6;
+                font-weight: 600;
+            }
+        """)
+    
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.charger()
     
     def charger(self):
         if not self.main_window.current_user:
             return
         
         user_id = self.main_window.current_user['id']
-        resp, status = APIService.get(f'reservations/passager/{user_id}')
+        reservations, res_status = APIService.get(f'reservations/passager/{user_id}')
+        invitations, inv_status = InvitationController.invitations_received(user_id)
         
-        if status == 200:
+        if res_status == 200:
             self.table.setRowCount(0)
-            for r in resp:
+            # Réservations
+            for r in reservations:
                 row = self.table.rowCount()
                 self.table.insertRow(row)
                 
@@ -51,7 +98,45 @@ class MesReservationsView(QWidget):
                 btn = QPushButton("Annuler")
                 btn.clicked.connect(lambda _, r_id=r['id']: self.annuler(r_id))
                 self.table.setCellWidget(row, 7, btn)
+
+            # Invitations reçues
+            if inv_status == 200:
+                for inv in invitations:
+                    row = self.table.rowCount()
+                    self.table.insertRow(row)
+                    
+                    self.table.setItem(row, 0, QTableWidgetItem(inv.get('depart', '')))
+                    self.table.setItem(row, 1, QTableWidgetItem(inv.get('arrivee', '')))
+                    self.table.setItem(row, 2, QTableWidgetItem(inv.get('date_depart', '')))
+                    self.table.setItem(row, 3, QTableWidgetItem("-"))
+                    self.table.setItem(row, 4, QTableWidgetItem(str(inv.get('prix_par_place', ''))))
+                    self.table.setItem(row, 5, QTableWidgetItem("Invitation"))
+                    self.table.setItem(row, 6, QTableWidgetItem(inv.get('statut', '')))
+
+                    accept_btn = QPushButton("Accepter")
+                    accept_btn.clicked.connect(lambda _, inv_id=inv['id']: self.accepter_inv(inv_id))
+                    refuse_btn = QPushButton("Refuser")
+                    refuse_btn.clicked.connect(lambda _, inv_id=inv['id']: self.refuser_inv(inv_id))
+
+                    actions = QWidget()
+                    actions_layout = QHBoxLayout(actions)
+                    actions_layout.setContentsMargins(0, 0, 0, 0)
+                    actions_layout.setSpacing(6)
+                    actions_layout.addWidget(accept_btn)
+                    actions_layout.addWidget(refuse_btn)
+                    actions.setLayout(actions_layout)
+                    self.table.setCellWidget(row, 7, actions)
+        else:
+            self.table.setRowCount(0)
     
     def annuler(self, reservation_id):
         APIService.delete(f'reservations/{reservation_id}/annuler')
+        self.charger()
+
+    def accepter_inv(self, invitation_id):
+        InvitationController.accepter(invitation_id)
+        self.charger()
+
+    def refuser_inv(self, invitation_id):
+        InvitationController.refuser(invitation_id)
         self.charger()
