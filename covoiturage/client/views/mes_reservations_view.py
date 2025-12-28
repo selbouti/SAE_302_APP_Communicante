@@ -14,10 +14,25 @@ class MesReservationsView(QWidget):
         title.setObjectName("titleLabel")
         layout.addWidget(title)
         
-        self.table = QTableWidget()
-        self.table.setColumnCount(8)
-        self.table.setHorizontalHeaderLabels(['Départ', 'Arrivée', 'Date', 'Places', 'Prix', 'Type', 'Statut', 'Action'])
-        layout.addWidget(self.table)
+        # Bloc réservations
+        res_title = QLabel("Réservations")
+        res_title.setObjectName("sectionLabel")
+        layout.addWidget(res_title)
+
+        self.res_table = QTableWidget()
+        self.res_table.setColumnCount(7)
+        self.res_table.setHorizontalHeaderLabels(['Départ', 'Arrivée', 'Date', 'Places', 'Prix', 'Statut', 'Action'])
+        layout.addWidget(self.res_table)
+
+        # Bloc invitations
+        inv_title = QLabel("Invitations reçues")
+        inv_title.setObjectName("sectionLabel")
+        layout.addWidget(inv_title)
+
+        self.inv_table = QTableWidget()
+        self.inv_table.setColumnCount(6)
+        self.inv_table.setHorizontalHeaderLabels(['Départ', 'Arrivée', 'Date', 'Prix', 'Statut', 'Action'])
+        layout.addWidget(self.inv_table)
         
         refresh = QPushButton("Rafraîchir")
         refresh.clicked.connect(self.charger)
@@ -41,6 +56,12 @@ class MesReservationsView(QWidget):
                 font-size: 22px;
                 font-weight: 700;
                 padding: 4px 0 8px 0;
+            }
+            QLabel#sectionLabel {
+                color: #4a4a4a;
+                font-size: 15px;
+                font-weight: 700;
+                padding: 6px 0 4px 0;
             }
             QPushButton {
                 background-color: #c21807;
@@ -81,37 +102,35 @@ class MesReservationsView(QWidget):
         invitations, inv_status = InvitationController.invitations_received(user_id)
         
         if res_status == 200:
-            self.table.setRowCount(0)
+            self.res_table.setRowCount(0)
             # Réservations
             for r in reservations:
-                row = self.table.rowCount()
-                self.table.insertRow(row)
+                row = self.res_table.rowCount()
+                self.res_table.insertRow(row)
                 
-                self.table.setItem(row, 0, QTableWidgetItem(r['depart']))
-                self.table.setItem(row, 1, QTableWidgetItem(r['arrivee']))
-                self.table.setItem(row, 2, QTableWidgetItem(r['date_depart']))
-                self.table.setItem(row, 3, QTableWidgetItem(str(r['places_reservees'])))
-                self.table.setItem(row, 4, QTableWidgetItem(str(r['prix_par_place'])))
-                self.table.setItem(row, 5, QTableWidgetItem("Réservation"))
-                self.table.setItem(row, 6, QTableWidgetItem(r['statut']))
+                self.res_table.setItem(row, 0, QTableWidgetItem(r['depart']))
+                self.res_table.setItem(row, 1, QTableWidgetItem(r['arrivee']))
+                self.res_table.setItem(row, 2, QTableWidgetItem(r['date_depart']))
+                self.res_table.setItem(row, 3, QTableWidgetItem(str(r['places_reservees'])))
+                self.res_table.setItem(row, 4, QTableWidgetItem(str(r['prix_par_place'])))
+                self.res_table.setItem(row, 5, QTableWidgetItem(r['statut']))
                 
                 btn = QPushButton("Annuler")
                 btn.clicked.connect(lambda _, r_id=r['id']: self.annuler(r_id))
-                self.table.setCellWidget(row, 7, btn)
+                self.res_table.setCellWidget(row, 6, btn)
 
             # Invitations reçues
             if inv_status == 200:
+                self.inv_table.setRowCount(0)
                 for inv in invitations:
-                    row = self.table.rowCount()
-                    self.table.insertRow(row)
+                    row = self.inv_table.rowCount()
+                    self.inv_table.insertRow(row)
                     
-                    self.table.setItem(row, 0, QTableWidgetItem(inv.get('depart', '')))
-                    self.table.setItem(row, 1, QTableWidgetItem(inv.get('arrivee', '')))
-                    self.table.setItem(row, 2, QTableWidgetItem(inv.get('date_depart', '')))
-                    self.table.setItem(row, 3, QTableWidgetItem("-"))
-                    self.table.setItem(row, 4, QTableWidgetItem(str(inv.get('prix_par_place', ''))))
-                    self.table.setItem(row, 5, QTableWidgetItem("Invitation"))
-                    self.table.setItem(row, 6, QTableWidgetItem(inv.get('statut', '')))
+                    self.inv_table.setItem(row, 0, QTableWidgetItem(inv.get('depart', '')))
+                    self.inv_table.setItem(row, 1, QTableWidgetItem(inv.get('arrivee', '')))
+                    self.inv_table.setItem(row, 2, QTableWidgetItem(inv.get('date_depart', '')))
+                    self.inv_table.setItem(row, 3, QTableWidgetItem(str(inv.get('prix_par_place', ''))))
+                    self.inv_table.setItem(row, 4, QTableWidgetItem(inv.get('statut', '')))
 
                     accept_btn = QPushButton("Accepter")
                     accept_btn.clicked.connect(lambda _, inv_id=inv['id']: self.accepter_inv(inv_id))
@@ -125,9 +144,10 @@ class MesReservationsView(QWidget):
                     actions_layout.addWidget(accept_btn)
                     actions_layout.addWidget(refuse_btn)
                     actions.setLayout(actions_layout)
-                    self.table.setCellWidget(row, 7, actions)
+                    self.inv_table.setCellWidget(row, 5, actions)
         else:
-            self.table.setRowCount(0)
+            self.res_table.setRowCount(0)
+            self.inv_table.setRowCount(0)
     
     def annuler(self, reservation_id):
         APIService.delete(f'reservations/{reservation_id}/annuler')
