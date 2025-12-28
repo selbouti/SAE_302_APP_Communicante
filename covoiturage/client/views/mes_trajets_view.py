@@ -26,6 +26,10 @@ class MesTrajetsView(QWidget):
         
         layout.addStretch()
         self.setLayout(layout)
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.charger()
     
     def charger(self):
         if not self.main_window.current_user:
