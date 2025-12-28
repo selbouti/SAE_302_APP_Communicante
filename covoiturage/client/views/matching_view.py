@@ -1,4 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox, QComboBox, QFrame
+from PyQt5.QtGui import QColor
+from PyQt5.QtCore import Qt
 from services.api_service import APIService
 from controllers.reservation_controller import ReservationController
 from controllers.invitation_controller import InvitationController
@@ -156,11 +158,19 @@ class MatchingView(QWidget):
                 voiture = f"{t.get('marque','')} {t.get('modele','')}".strip()
                 self.table.setItem(row, 3, QTableWidgetItem(voiture))
                 self.table.setItem(row, 4, QTableWidgetItem(f"{t['prix_par_place']}€")) 
-                self.table.setItem(row, 5, QTableWidgetItem(str(t['places_disponibles'])))
+                
+                places_item = QTableWidgetItem(str(t['places_disponibles']))
+                if t['places_disponibles'] <= 0:
+                    places_item.setForeground(Qt.gray)
+                self.table.setItem(row, 5, places_item)
                 
                 if mode_recherche == 'réservations':
                     btn = QPushButton("Réserver")
-                    btn.clicked.connect(lambda _, t_id=t['id']: self.reserver(t_id))
+                    if t['places_disponibles'] <= 0:
+                        btn.setEnabled(False)
+                        btn.setStyleSheet("QPushButton { background: #d9d9d9; color: #7a7a7a; border: 1px solid #b3b3b3; }")
+                    else:
+                        btn.clicked.connect(lambda _, t_id=t['id']: self.reserver(t_id))
                 else:
                     btn = QPushButton("Inviter")
                     btn.clicked.connect(lambda _, p_id=t['utilisateur_id']: self.inviter(p_id, t['id']))
