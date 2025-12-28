@@ -12,7 +12,9 @@ class MatchingView(QWidget):
     
     def setup_ui(self):
         layout = QVBoxLayout()
-        layout.addWidget(QLabel("Trajets compatibles"))
+        title = QLabel("Trajets compatibles")
+        title.setObjectName("titleLabel")
+        layout.addWidget(title)
         
         self.info_label = QLabel("")
         layout.addWidget(self.info_label)

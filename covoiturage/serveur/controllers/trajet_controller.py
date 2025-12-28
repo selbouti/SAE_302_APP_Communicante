@@ -34,4 +34,14 @@ def get_places_disponibles(trajet_id):
     places = TrajetModel.get_places_disponibles(trajet_id)
     return jsonify({'places_disponibles': places}), 200
 
+@trajet_bp.route('/trajets/<int:trajet_id>/mode', methods=['PUT'])
+def changer_mode(trajet_id):
+    data = request.json or {}
+    mode = data.get('mode')
+    if mode not in ('conducteur', 'passager'):
+        return jsonify({'error': 'Mode invalide'}), 400
+    
+    TrajetModel.update_mode(trajet_id, mode)
+    return jsonify({'success': True, 'mode': mode}), 200
+
 # ============= controllers/matching_controller.py (MODIFIED) =============

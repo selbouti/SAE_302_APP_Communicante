@@ -9,7 +9,9 @@ class TrajetView(QWidget):
     
     def setup_ui(self):
         layout = QVBoxLayout()
-        layout.addWidget(QLabel("Publier un trajet"))
+        title = QLabel("Publier un trajet")
+        title.setObjectName("titleLabel")
+        layout.addWidget(title)
         
         layout.addWidget(QLabel("Départ:"))
         self.depart = QLineEdit()
@@ -51,6 +53,39 @@ class TrajetView(QWidget):
         layout.addWidget(back)
         
         self.setLayout(layout)
+        self.setStyleSheet("""
+            QWidget {
+                background: #ffffff;
+                color: #1e1e1e;
+                font-family: "Helvetica Neue", Arial, sans-serif;
+                font-size: 14px;
+            }
+            QLabel#titleLabel {
+                color: #b30000;
+                font-size: 22px;
+                font-weight: 700;
+                padding: 4px 0 8px 0;
+            }
+            QLabel {
+                color: #4a4a4a;
+            }
+            QLineEdit, QSpinBox {
+                border: 1px solid #d9d9d9;
+                border-radius: 6px;
+                padding: 8px;
+                background: #ffffff;
+            }
+            QPushButton {
+                background-color: #c1121f;
+                color: #ffffff;
+                border: 1px solid #a00f1b;
+                border-radius: 6px;
+                padding: 8px 12px;
+                font-weight: 600;
+            }
+            QPushButton:hover { background-color: #d90429; }
+            QPushButton:pressed { background-color: #9b0d16; }
+        """)
     
     def publier(self):
         try:
