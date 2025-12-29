@@ -16,12 +16,12 @@ def creer_reservation():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
-@reservation_bp.route('/reservations/passager/<int:passager_id>', methods=['GET'])
+@reservation_bp.route('/reservations/faites/<int:passager_id>', methods=['GET'])
 def mes_reservations(passager_id):
     reservations = ReservationModel.get_by_passager(passager_id)
     return jsonify(reservations), 200
 
-@reservation_bp.route('/reservations/trajet/<int:trajet_id>', methods=['GET'])
+@reservation_bp.route('/reservations/recues/<int:trajet_id>', methods=['GET'])
 def reservations_trajet(trajet_id):
     reservations = ReservationModel.get_by_trajet(trajet_id)
     return jsonify(reservations), 200

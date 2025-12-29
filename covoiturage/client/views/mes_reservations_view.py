@@ -1,12 +1,9 @@
-import ast
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTableWidget, QTableWidgetItem
-from PyQt5.QtWidgets import QMessageBox
-from services.api_service import APIService
-from controllers.invitation_controller import InvitationController
-from controllers.message_controller import MessageController
+# ============= views/reservations_invitations_view.py =============
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QTabWidget, QMessageBox, QLabel
 from controllers.reservation_controller import ReservationController
+from controllers.invitation_controller import InvitationController
 
-class MesReservationsView(QWidget):
+class ReservationsInvitationsView(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
@@ -14,276 +11,258 @@ class MesReservationsView(QWidget):
     
     def setup_ui(self):
         layout = QVBoxLayout()
-        title = QLabel("Mes réservations et invitations")
-        title.setObjectName("titleLabel")
-        layout.addWidget(title)
         
-        # Bloc réservations
-        res_title = QLabel("Réservations")
-        res_title.setObjectName("sectionLabel")
-        res_title_layout = QHBoxLayout()
-        res_title_layout.addWidget(res_title)
-        self.res_badge = QLabel("")
-        self.res_badge.setObjectName("notifBadge")
-        self.res_badge.hide()
-        self.res_badge.setText("● Nouveau")
-        res_title_layout.addWidget(self.res_badge)
-        res_title_layout.addStretch()
-        layout.addLayout(res_title_layout)
-
-        self.res_table = QTableWidget()
-        self.res_table.setColumnCount(8)
-        self.res_table.setHorizontalHeaderLabels(['Départ', 'Arrivée', 'Date', 'Places', 'Prix', 'Statut', 'Nouveau', 'Action'])
-        layout.addWidget(self.res_table)
-
-        # Bloc invitations
-        inv_title = QLabel("Invitations reçues")
-        inv_title.setObjectName("sectionLabel")
-        layout.addWidget(inv_title)
-
-        self.inv_table = QTableWidget()
-        self.inv_table.setColumnCount(9)
-        self.inv_table.setHorizontalHeaderLabels(['Départ', 'Arrivée', 'Date', 'Prix', 'Statut', 'Conducteur', 'Contact', 'Nouveau', 'Action'])
-        layout.addWidget(self.inv_table)
-
-        # Bloc passagers sur mes trajets (conducteur)
-        self.co_title = QLabel("Passagers sur mes trajets")
-        self.co_title.setObjectName("sectionLabel")
-        layout.addWidget(self.co_title)
-
-        self.co_table = QTableWidget()
-        self.co_table.setColumnCount(6)
-        self.co_table.setHorizontalHeaderLabels(['Trajet', 'Passager', 'Places', 'Statut', 'Contact', 'Action'])
-        layout.addWidget(self.co_table)
-
-        refresh = QPushButton("Rafraîchir")
-        refresh.clicked.connect(self.charger)
-        layout.addWidget(refresh)
-
-        clear_btn = QPushButton("Effacer notifications")
-        clear_btn.clicked.connect(self.clear_notifications)
-        layout.addWidget(clear_btn)
+        # Onglets principaux
+        self.tabs = QTabWidget()
         
+        # Onglet 1: Réservations
+        self.tab_reservations = QWidget()
+        self.setup_tab_reservations()
+        self.tabs.addTab(self.tab_reservations, "Réservations")
+        
+        # Onglet 2: Invitations
+        self.tab_invitations = QWidget()
+        self.setup_tab_invitations()
+        self.tabs.addTab(self.tab_invitations, "Invitations")
+        
+        layout.addWidget(self.tabs)
+        
+        # Bouton retour
         back = QPushButton("Retour")
         back.clicked.connect(lambda: self.main_window.switch_to('home'))
         layout.addWidget(back)
         
-        layout.addStretch()
         self.setLayout(layout)
-        self.setStyleSheet("""
-            QWidget {
-                background: #ffffff;
-                color: #1e1e1e;
-                font-family: "Open Sans", "Segoe UI", Arial, sans-serif;
-                font-size: 14px;
-            }
-            QLabel#titleLabel {
-                color: #b00020;
-                font-size: 22px;
-                font-weight: 700;
-                padding: 4px 0 8px 0;
-            }
-            QLabel#sectionLabel {
-                color: #4a4a4a;
-                font-size: 15px;
-                font-weight: 700;
-                padding: 6px 0 4px 0;
-            }
-            QLabel#notifBadge {
-                background: #d90429;
-                color: #ffffff;
-                border-radius: 10px;
-                padding: 3px 8px;
-                font-size: 12px;
-                font-weight: 700;
-            }
-            QPushButton {
-                background-color: #c21807;
-                color: #ffffff;
-                border: 1px solid #9c1a06;
-                border-radius: 6px;
-                padding: 8px 12px;
-                font-weight: 600;
-            }
-            QPushButton:hover { background-color: #d6281a; }
-            QPushButton:pressed { background-color: #8c1505; }
-            QTableWidget {
-                border: 1px solid #e6e6e6;
-                border-radius: 6px;
-                gridline-color: #e6e6e6;
-                selection-background-color: #ffe6e6;
-                selection-color: #b00020;
-            }
-            QHeaderView::section {
-                background: #f7f7f7;
-                color: #b00020;
-                padding: 6px;
-                border: 1px solid #e6e6e6;
-                font-weight: 600;
-            }
-        """)
     
-    def showEvent(self, event):
-        super().showEvent(event)
-        self.charger()
+    def setup_tab_reservations(self):
+        """Configure l'onglet des réservations"""
+        layout = QVBoxLayout()
+        
+        # Sous-onglets
+        sub_tabs = QTabWidget()
+        
+        # Réservations reçues
+        widget_recues = QWidget()
+        layout_recues = QVBoxLayout()
+        layout_recues.addWidget(QLabel("Réservations reçues sur mes trajets"))
+        
+        self.table_res_recues = QTableWidget()
+        self.table_res_recues.setColumnCount(8)
+        self.table_res_recues.setHorizontalHeaderLabels(['Départ', 'Arrivée', 'Passager', 'Places', 'Statut', 'Date', 'Accepter', 'Refuser'])
+        layout_recues.addWidget(self.table_res_recues)
+        
+        btn_refresh_recues = QPushButton("Rafraîchir")
+        btn_refresh_recues.clicked.connect(self.charger_reservations_recues)
+        layout_recues.addWidget(btn_refresh_recues)
+        
+        widget_recues.setLayout(layout_recues)
+        sub_tabs.addTab(widget_recues, "Reçues")
+        
+        # Réservations faites
+        widget_faites = QWidget()
+        layout_faites = QVBoxLayout()
+        layout_faites.addWidget(QLabel("Mes réservations"))
+        
+        self.table_res_faites = QTableWidget()
+        self.table_res_faites.setColumnCount(7)
+        self.table_res_faites.setHorizontalHeaderLabels(['Départ', 'Arrivée', 'Conducteur', 'Places', 'Statut', 'Date', 'Annuler'])
+        layout_faites.addWidget(self.table_res_faites)
+        
+        btn_refresh_faites = QPushButton("Rafraîchir")
+        btn_refresh_faites.clicked.connect(self.charger_reservations_faites)
+        layout_faites.addWidget(btn_refresh_faites)
+        
+        widget_faites.setLayout(layout_faites)
+        sub_tabs.addTab(widget_faites, "Faites")
+        
+        layout.addWidget(sub_tabs)
+        self.tab_reservations.setLayout(layout)
     
-    def charger(self):
-        if not self.main_window.current_user:
+    def setup_tab_invitations(self):
+        """Configure l'onglet des invitations"""
+        layout = QVBoxLayout()
+        
+        # Sous-onglets
+        sub_tabs = QTabWidget()
+        
+        # Invitations reçues
+        widget_recues = QWidget()
+        layout_recues = QVBoxLayout()
+        layout_recues.addWidget(QLabel("Invitations reçues"))
+        
+        self.table_inv_recues = QTableWidget()
+        self.table_inv_recues.setColumnCount(7)
+        self.table_inv_recues.setHorizontalHeaderLabels(['Départ', 'Arrivée', 'Conducteur', 'Statut', 'Date', 'Accepter', 'Refuser'])
+        layout_recues.addWidget(self.table_inv_recues)
+        
+        btn_refresh_recues = QPushButton("Rafraîchir")
+        btn_refresh_recues.clicked.connect(self.charger_invitations_recues)
+        layout_recues.addWidget(btn_refresh_recues)
+        
+        widget_recues.setLayout(layout_recues)
+        sub_tabs.addTab(widget_recues, "Reçues")
+        
+        # Invitations envoyées
+        widget_envoyees = QWidget()
+        layout_envoyees = QVBoxLayout()
+        layout_envoyees.addWidget(QLabel("Invitations envoyées"))
+        
+        self.table_inv_envoyees = QTableWidget()
+        self.table_inv_envoyees.setColumnCount(6)
+        self.table_inv_envoyees.setHorizontalHeaderLabels(['Départ', 'Arrivée', 'Passager', 'Statut', 'Date', 'Supprimer'])
+        layout_envoyees.addWidget(self.table_inv_envoyees)
+        
+        btn_refresh_envoyees = QPushButton("Rafraîchir")
+        btn_refresh_envoyees.clicked.connect(self.charger_invitations_envoyees)
+        layout_envoyees.addWidget(btn_refresh_envoyees)
+        
+        widget_envoyees.setLayout(layout_envoyees)
+        sub_tabs.addTab(widget_envoyees, "Envoyées")
+        
+        layout.addWidget(sub_tabs)
+        self.tab_invitations.setLayout(layout)
+    
+    # ===== CHARGEMENT RESERVATIONS =====
+    def charger_reservations_recues(self):
+        """Charge les réservations reçues"""
+        reservations, erreur = ReservationController.get_reservations_recues(self.main_window.current_user['id'])
+        
+        if erreur:
+            QMessageBox.warning(self, "Erreur", erreur)
             return
         
-        user_id = self.main_window.current_user['id']
-        reservations, res_status = APIService.get(f'reservations/passager/{user_id}')
-        invitations, inv_status = InvitationController.invitations_received(user_id)
-        messages, msg_status = MessageController.list_for_user(user_id)
-        co_rows = []
-        # réservations sur mes trajets (si conducteur)
-        res_trajets = []
-        try:
-            trajets, traj_status = APIService.get(f'mes_trajets/{user_id}')
-            if traj_status == 200:
-                for t in trajets:
-                    res_trajets.append((t['id'], t.get('depart',''), t.get('arrivee',''), t.get('date_depart','')))
-        except Exception:
-            pass
-        co_rows = []
-        for t_id, dep, arr, date in res_trajets:
-            res_list, st = APIService.get(f'reservations/trajet/{t_id}')
-            if st == 200:
-                for r in res_list:
-                    co_rows.append({
-                        'id': r.get('id'),
-                        'trajet': f"{dep} → {arr} le {date}",
-                        'passager': f"{r.get('prenom','')} {r.get('nom','')}",
-                        'places': r.get('places_reservees', 0),
-                        'statut': r.get('statut', ''),
-                        'contact': r.get('email', '')
-                    })
-
-        new_res_ids = set()
-        new_inv_ids = set()
-        if msg_status == 200:
-            for m in messages:
-                meta = {}
-                if m.get('meta'):
-                    try:
-                        meta = ast.literal_eval(m['meta'])
-                    except Exception:
-                        meta = {}
-                if isinstance(meta, dict):
-                    if 'reservation_id' in meta:
-                        new_res_ids.add(int(meta['reservation_id']))
-                    if 'invitation_id' in meta:
-                        new_inv_ids.add(int(meta['invitation_id']))
-            if new_res_ids:
-                self.res_badge.show()
-            else:
-                self.res_badge.hide()
-
-        if res_status == 200:
-            self.res_table.setRowCount(0)
-            # Réservations
-            for r in reservations:
-                row = self.res_table.rowCount()
-                self.res_table.insertRow(row)
-                
-                self.res_table.setItem(row, 0, QTableWidgetItem(r['depart']))
-                self.res_table.setItem(row, 1, QTableWidgetItem(r['arrivee']))
-                self.res_table.setItem(row, 2, QTableWidgetItem(r['date_depart']))
-                self.res_table.setItem(row, 3, QTableWidgetItem(str(r['places_reservees'])))
-                self.res_table.setItem(row, 4, QTableWidgetItem(str(r['prix_par_place'])))
-                self.res_table.setItem(row, 5, QTableWidgetItem(r['statut']))
-                new_item = QTableWidgetItem("Nouveau") if r['id'] in new_res_ids else QTableWidgetItem("")
-                self.res_table.setItem(row, 6, new_item)
-                
-                btn = QPushButton("Annuler")
-                btn.clicked.connect(lambda _, r_id=r['id']: self.annuler(r_id))
-                self.res_table.setCellWidget(row, 7, btn)
-
-            # Invitations reçues
-            if inv_status == 200:
-                self.inv_table.setRowCount(0)
-                for inv in invitations:
-                    row = self.inv_table.rowCount()
-                    self.inv_table.insertRow(row)
-                    
-                    self.inv_table.setItem(row, 0, QTableWidgetItem(inv.get('depart', '')))
-                    self.inv_table.setItem(row, 1, QTableWidgetItem(inv.get('arrivee', '')))
-                    self.inv_table.setItem(row, 2, QTableWidgetItem(inv.get('date_depart', '')))
-                    self.inv_table.setItem(row, 3, QTableWidgetItem(str(inv.get('prix_par_place', ''))))
-                    self.inv_table.setItem(row, 4, QTableWidgetItem(inv.get('statut', '')))
-                    self.inv_table.setItem(row, 5, QTableWidgetItem(f"{inv.get('prenom','')} {inv.get('nom','')}"))
-                    self.inv_table.setItem(row, 6, QTableWidgetItem(inv.get('email','')))
-                    new_item_inv = QTableWidgetItem("Nouveau") if inv.get('id') in new_inv_ids else QTableWidgetItem("")
-                    self.inv_table.setItem(row, 7, new_item_inv)
-
-                    accept_btn = QPushButton("Accepter")
-                    accept_btn.clicked.connect(lambda _, inv_id=inv['id']: self.accepter_inv(inv_id))
-                    refuse_btn = QPushButton("Refuser")
-                    refuse_btn.clicked.connect(lambda _, inv_id=inv['id']: self.refuser_inv(inv_id))
-
-                    actions = QWidget()
-                    actions_layout = QHBoxLayout(actions)
-                    actions_layout.setContentsMargins(0, 0, 0, 0)
-                    actions_layout.setSpacing(6)
-                    actions_layout.addWidget(accept_btn)
-                    actions_layout.addWidget(refuse_btn)
-                    actions.setLayout(actions_layout)
-                    self.inv_table.setCellWidget(row, 8, actions)
-            # Passagers sur mes trajets (tous, avec actions si en attente)
-            self.co_table.setRowCount(0)
-            for co in co_rows:
-                row = self.co_table.rowCount()
-                self.co_table.insertRow(row)
-                self.co_table.setItem(row, 0, QTableWidgetItem(co['trajet']))
-                self.co_table.setItem(row, 1, QTableWidgetItem(co['passager']))
-                self.co_table.setItem(row, 2, QTableWidgetItem(str(co['places'])))
-                self.co_table.setItem(row, 3, QTableWidgetItem(co['statut']))
-                self.co_table.setItem(row, 4, QTableWidgetItem(co['contact']))
-                if co['statut'] == 'en_attente':
-                    actions = QWidget()
-                    actions_layout = QHBoxLayout(actions)
-                    actions_layout.setContentsMargins(0, 0, 0, 0)
-                    actions_layout.setSpacing(6)
-                    accept_btn = QPushButton("Accepter")
-                    accept_btn.clicked.connect(lambda _, r_id=co['id']: self.accepter_co(r_id))
-                    refuse_btn = QPushButton("Refuser")
-                    refuse_btn.clicked.connect(lambda _, r_id=co['id']: self.refuser_co(r_id))
-                    actions_layout.addWidget(accept_btn)
-                    actions_layout.addWidget(refuse_btn)
-                    actions.setLayout(actions_layout)
-                    self.co_table.setCellWidget(row, 5, actions)
-                else:
-                    self.co_table.setItem(row, 5, QTableWidgetItem(""))
-        else:
-            self.res_table.setRowCount(0)
-            self.inv_table.setRowCount(0)
-            self.co_table.setRowCount(0)
+        self.table_res_recues.setRowCount(0)
+        for res in reservations:
+            row = self.table_res_recues.rowCount()
+            self.table_res_recues.insertRow(row)
+            
+            self.table_res_recues.setItem(row, 0, QTableWidgetItem(res.depart))
+            self.table_res_recues.setItem(row, 1, QTableWidgetItem(res.arrivee))
+            self.table_res_recues.setItem(row, 2, QTableWidgetItem(f"{res.prenom} {res.nom}"))
+            self.table_res_recues.setItem(row, 3, QTableWidgetItem(str(res.places_reservees)))
+            self.table_res_recues.setItem(row, 4, QTableWidgetItem(res.statut))
+            self.table_res_recues.setItem(row, 5, QTableWidgetItem(res.created_at[:10]))
+            
+            btn_accept = QPushButton("✓")
+            btn_accept.clicked.connect(lambda _, rid=res.id: self.accepter_reservation(rid))
+            self.table_res_recues.setCellWidget(row, 6, btn_accept)
+            
+            btn_refuse = QPushButton("✗")
+            btn_refuse.clicked.connect(lambda _, rid=res.id: self.refuser_reservation(rid))
+            self.table_res_recues.setCellWidget(row, 7, btn_refuse)
     
-    def annuler(self, reservation_id):
-        APIService.delete(f'reservations/{reservation_id}/annuler')
-        self.charger()
-
-    def accepter_inv(self, invitation_id):
-        InvitationController.accepter(invitation_id)
-        self.charger()
-
-    def refuser_inv(self, invitation_id):
-        InvitationController.refuser(invitation_id)
-        self.charger()
-
-    def clear_notifications(self):
-        if not self.main_window.current_user:
+    def charger_reservations_faites(self):
+        """Charge les réservations faites"""
+        reservations, erreur = ReservationController.get_reservations_faites(self.main_window.current_user['id'])
+        
+        if erreur:
+            QMessageBox.warning(self, "Erreur", erreur)
             return
-        MessageController.clear_for_user(self.main_window.current_user['id'])
-        self.res_badge.hide()
-        self.charger()
-
-    def accepter_co(self, reservation_id):
-        resp, status = ReservationController.accepter(reservation_id)
-        if status != 200:
-            QMessageBox.warning(self, "Erreur", resp.get('error', 'Impossible d\'accepter (places insuffisantes ?)'))
-        self.charger()
-
-    def refuser_co(self, reservation_id):
-        ReservationController.refuser(reservation_id)
-        self.charger()
+        
+        self.table_res_faites.setRowCount(0)
+        for res in reservations:
+            row = self.table_res_faites.rowCount()
+            self.table_res_faites.insertRow(row)
+            
+            self.table_res_faites.setItem(row, 0, QTableWidgetItem(res.depart))
+            self.table_res_faites.setItem(row, 1, QTableWidgetItem(res.arrivee))
+            self.table_res_faites.setItem(row, 2, QTableWidgetItem(f"{res.prenom} {res.nom}"))
+            self.table_res_faites.setItem(row, 3, QTableWidgetItem(str(res.places_reservees)))
+            self.table_res_faites.setItem(row, 4, QTableWidgetItem(res.statut))
+            self.table_res_faites.setItem(row, 5, QTableWidgetItem(res.created_at[:10]))
+            
+            btn_cancel = QPushButton("✗")
+            btn_cancel.clicked.connect(lambda _, rid=res.id: self.annuler_reservation(rid))
+            self.table_res_faites.setCellWidget(row, 6, btn_cancel)
+    
+    # ===== CHARGEMENT INVITATIONS =====
+    def charger_invitations_recues(self):
+        """Charge les invitations reçues"""
+        invitations, erreur = InvitationController.get_invitations_recues(self.main_window.current_user['id'])
+        
+        if erreur:
+            QMessageBox.warning(self, "Erreur", erreur)
+            return
+        
+        self.table_inv_recues.setRowCount(0)
+        for inv in invitations:
+            row = self.table_inv_recues.rowCount()
+            self.table_inv_recues.insertRow(row)
+            
+            self.table_inv_recues.setItem(row, 0, QTableWidgetItem(inv.depart))
+            self.table_inv_recues.setItem(row, 1, QTableWidgetItem(inv.arrivee))
+            self.table_inv_recues.setItem(row, 2, QTableWidgetItem(f"{inv.prenom} {inv.nom}"))
+            self.table_inv_recues.setItem(row, 3, QTableWidgetItem(inv.statut))
+            self.table_inv_recues.setItem(row, 4, QTableWidgetItem(inv.created_at[:10]))
+            
+            btn_accept = QPushButton("✓")
+            btn_accept.clicked.connect(lambda _, iid=inv.id: self.accepter_invitation(iid))
+            self.table_inv_recues.setCellWidget(row, 5, btn_accept)
+            
+            btn_refuse = QPushButton("✗")
+            btn_refuse.clicked.connect(lambda _, iid=inv.id: self.refuser_invitation(iid))
+            self.table_inv_recues.setCellWidget(row, 6, btn_refuse)
+    
+    def charger_invitations_envoyees(self):
+        """Charge les invitations envoyées"""
+        invitations, erreur = InvitationController.get_invitations_envoyees(self.main_window.current_user['id'])
+        
+        if erreur:
+            QMessageBox.warning(self, "Erreur", erreur)
+            return
+        
+        self.table_inv_envoyees.setRowCount(0)
+        for inv in invitations:
+            row = self.table_inv_envoyees.rowCount()
+            self.table_inv_envoyees.insertRow(row)
+            
+            self.table_inv_envoyees.setItem(row, 0, QTableWidgetItem(inv.depart))
+            self.table_inv_envoyees.setItem(row, 1, QTableWidgetItem(inv.arrivee))
+            self.table_inv_envoyees.setItem(row, 2, QTableWidgetItem(f"{inv.prenom} {inv.nom}"))
+            self.table_inv_envoyees.setItem(row, 3, QTableWidgetItem(inv.statut))
+            self.table_inv_envoyees.setItem(row, 4, QTableWidgetItem(inv.created_at[:10]))
+            
+            btn_delete = QPushButton("✗")
+            btn_delete.clicked.connect(lambda _, iid=inv.id: self.refuser_invitation(iid))
+            self.table_inv_envoyees.setCellWidget(row, 5, btn_delete)
+    
+    # ===== ACTIONS =====
+    def accepter_reservation(self, res_id):
+        success, msg = ReservationController.accepter_reservation(res_id)
+        if success:
+            QMessageBox.information(self, "Succès", msg)
+            self.charger_reservations_recues()
+        else:
+            QMessageBox.warning(self, "Erreur", msg)
+    
+    def refuser_reservation(self, res_id):
+        success, msg = ReservationController.refuser_reservation(res_id)
+        if success:
+            QMessageBox.information(self, "Succès", msg)
+            self.charger_reservations_recues()
+        else:
+            QMessageBox.warning(self, "Erreur", msg)
+    
+    def annuler_reservation(self, res_id):
+        success, msg = ReservationController.annuler_reservation(res_id)
+        if success:
+            QMessageBox.information(self, "Succès", msg)
+            self.charger_reservations_faites()
+        else:
+            QMessageBox.warning(self, "Erreur", msg)
+    
+    def accepter_invitation(self, inv_id):
+        success, msg = InvitationController.accepter_invitation(inv_id)
+        if success:
+            QMessageBox.information(self, "Succès", msg)
+            self.charger_invitations_recues()
+        else:
+            QMessageBox.warning(self, "Erreur", msg)
+    
+    def refuser_invitation(self, inv_id):
+        success, msg = InvitationController.refuser_invitation(inv_id)
+        if success:
+            QMessageBox.information(self, "Succès", msg)
+            self.charger_invitations_recues()
+        else:
+            QMessageBox.warning(self, "Erreur", msg)

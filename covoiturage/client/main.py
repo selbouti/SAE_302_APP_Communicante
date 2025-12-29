@@ -7,7 +7,7 @@ from views.register_view import RegisterView
 from views.home_view import HomeView
 from views.matching_view import MatchingView
 from views.mes_trajets_view import MesTrajetsView
-from views.mes_reservations_view import MesReservationsView
+from views.mes_reservations_view import ReservationsInvitationsView
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -20,7 +20,7 @@ if __name__ == '__main__':
         'home': HomeView(main_window),
         'matching': MatchingView(main_window),
         'mes_trajets': MesTrajetsView(main_window),
-        'mes_reservations': MesReservationsView(main_window)
+        'mes_reservations': ReservationsInvitationsView(main_window)
     }
     
     main_window.views = views
