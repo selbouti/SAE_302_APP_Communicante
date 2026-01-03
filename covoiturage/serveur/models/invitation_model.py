@@ -19,6 +19,20 @@ class InvitationModel:
                    WHERE i.passager_id = ?'''
         invs = Database.execute(query, (passager_id,))
         return [dict(i) for i in invs]
+
+    @staticmethod
+    def get_invitations_sent(conducteur_id):
+        """Invitations que j'ai envoyées (je suis conducteur)"""
+        query = '''SELECT i.id, i.trajet_id, i.statut, i.created_at,
+                   t.depart, t.arrivee, t.date_depart, t.heure_depart,
+                   u.nom, u.prenom, u.email, u.telephone
+                   FROM invitations i
+                   JOIN trajets t ON i.trajet_id = t.id
+                   JOIN utilisateurs u ON i.passager_id = u.id
+                   WHERE t.utilisateur_id = ? AND t.mode = 'conducteur'
+                   ORDER BY i.created_at DESC'''
+        invs = Database.execute(query, (conducteur_id,))
+        return [dict(i) for i in invs]
     
     @staticmethod
     def accepter(invitation_id):

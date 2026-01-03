@@ -69,3 +69,9 @@ class TrajetModel:
     @staticmethod
     def delete(trajet_id):
         Database.execute('DELETE FROM trajets WHERE id=?', (trajet_id,))
+
+    @staticmethod
+    def update_mode(trajet_id, mode):
+        """Met à jour le mode (conducteur/passager) pour un trajet."""
+        Database.execute('UPDATE trajets SET mode=? WHERE id=?', (mode, trajet_id))
+        return True
