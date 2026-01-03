@@ -1,55 +1,110 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton
+from PyQt5.QtWidgets import (
+    QWidget, QVBoxLayout, QLabel, QLineEdit,
+    QPushButton, QSpinBox, QMessageBox
+)
+from controllers.profile_controller import ProfileController
+
 
 class ProfileView(QWidget):
-    def __init__(self, user_controller, main_window=None):
+
+    def __init__(self, utilisateur_id, main_window=None):
         super().__init__()
-        self.user_controller = user_controller
+        self.utilisateur_id = utilisateur_id
         self.main_window = main_window
 
         layout = QVBoxLayout()
 
-        self.label = QLabel("Profil")
-        self.nom_input = QLineEdit()
-        self.prenom_input = QLineEdit()
-        self.email_input = QLineEdit()
-        self.update_button = QPushButton("Mettre à jour")
-        self.back_button = QPushButton("Retour")
+        title = QLabel("Mon profil")
+        title.setStyleSheet("font-size:20px;font-weight:bold;")
 
-        layout.addWidget(self.label)
-        layout.addWidget(self.nom_input)
-        layout.addWidget(self.prenom_input)
-        layout.addWidget(self.email_input)
-        layout.addWidget(self.update_button)
-        layout.addWidget(self.back_button)
+        self.nom = QLineEdit()
+        self.nom.setPlaceholderText("Nom")
+
+        self.prenom = QLineEdit()
+        self.prenom.setPlaceholderText("Prénom")
+
+        self.email = QLineEdit()
+        self.email.setPlaceholderText("Email")
+
+        self.telephone = QLineEdit()
+        self.telephone.setPlaceholderText("Téléphone")
+
+        self.marque = QLineEdit()
+        self.marque.setPlaceholderText("Marque véhicule")
+
+        self.modele = QLineEdit()
+        self.modele.setPlaceholderText("Modèle")
+
+        self.couleur = QLineEdit()
+        self.couleur.setPlaceholderText("Couleur")
+
+        self.plaque = QLineEdit()
+        self.plaque.setPlaceholderText("Plaque")
+
+        self.places = QSpinBox()
+        self.places.setRange(1, 8)
+        self.places.setPrefix("Places : ")
+
+        save_btn = QPushButton("Enregistrer")
+        back_btn = QPushButton("Retour")
+
+        for w in [
+            title, self.nom, self.prenom, self.email, self.telephone,
+            self.marque, self.modele, self.couleur, self.plaque,
+            self.places, save_btn, back_btn
+        ]:
+            layout.addWidget(w)
 
         self.setLayout(layout)
 
-        self.update_button.clicked.connect(self.update_profile)
-        self.back_button.clicked.connect(self.go_back)
+        save_btn.clicked.connect(self.save)
+        back_btn.clicked.connect(self.go_back)
 
-    def load_user(self, user_id):
-        response = self.user_controller.get_user(user_id)
-        if response.get("success"):
-            user = response["user"]
-            self.nom_input.setText(user.get("nom", ""))
-            self.prenom_input.setText(user.get("prenom", ""))
-            self.email_input.setText(user.get("email", ""))
+        self.load()
 
-    def update_profile(self):
+    def load(self):
+        response = ProfileController.get_profile(self.utilisateur_id)
+
+        if not response.get("success"):
+            QMessageBox.critical(self, "Erreur", "Impossible de charger le profil")
+            return
+
+        p = response["profile"]
+        self.nom.setText(p["nom"])
+        self.prenom.setText(p["prenom"])
+        self.email.setText(p["email"])
+        self.telephone.setText(p["telephone"])
+
+        if p.get("voiture"):
+            v = p["voiture"]
+            self.marque.setText(v["marque"])
+            self.modele.setText(v["modele"])
+            self.couleur.setText(v["couleur"])
+            self.plaque.setText(v["plaque"])
+            self.places.setValue(v["places_totales"])
+
+    def save(self):
         data = {
-            "nom": self.nom_input.text(),
-            "prenom": self.prenom_input.text(),
-            "email": self.email_input.text()
+            "nom": self.nom.text(),
+            "prenom": self.prenom.text(),
+            "email": self.email.text(),
+            "telephone": self.telephone.text(),
+            "voiture": {
+                "marque": self.marque.text(),
+                "modele": self.modele.text(),
+                "couleur": self.couleur.text(),
+                "plaque": self.plaque.text(),
+                "places": self.places.value()
+            }
         }
-        # Pour l’exemple, user_id=1
-        response = self.user_controller.update_user(1, data)
+
+        response = ProfileController.update_profile(self.utilisateur_id, data)
+
         if response.get("success"):
-            if self.main_window:
-                self.main_window.show_message("Profil mis à jour !")
+            QMessageBox.information(self, "Succès", "Profil mis à jour ✔")
         else:
-            if self.main_window:
-                self.main_window.show_error(response.get("message", "Erreur"))
+            QMessageBox.critical(self, "Erreur", "Erreur lors de la mise à jour")
 
     def go_back(self):
         if self.main_window:
-            self.main_window.show_home_page()
+            self.main_window.switch_to("home")
