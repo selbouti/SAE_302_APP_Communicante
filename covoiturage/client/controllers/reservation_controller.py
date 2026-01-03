@@ -67,10 +67,11 @@ class ReservationController:
         return False, f"Erreur {status}"
     
     @staticmethod
+    # Dans reservation_controller.py côté client:
+    @staticmethod
     def annuler_reservation(reservation_id):
         """Annuler une réservation"""
-        resp, status = APIService.delete(f'reservations/{reservation_id}/annuler')
-        
+        resp, status = APIService.delete(f'reservations/{reservation_id}')  # ← Sans /annuler
         if status == 200:
             return True, "Réservation annulée"
         return False, f"Erreur {status}"

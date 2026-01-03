@@ -1,3 +1,4 @@
+from flask import jsonify
 from core.database import Database
 from models.trajet_model import TrajetModel
 
@@ -45,3 +46,8 @@ class ReservationModel:
     def refuser(reservation_id):
         Database.execute('UPDATE reservations SET statut = ? WHERE id = ?', ('refusee', reservation_id))
 
+    @staticmethod
+    def annuler(reservation_id):
+        Database.execute('DELETE FROM reservations WHERE id=?', (reservation_id,))
+        
+        
