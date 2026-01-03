@@ -5,26 +5,32 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Covoiturage Daily - BlaBlaCar")
         self.setGeometry(100, 100, 1000, 700)
-        
+
         self.current_user = None
         self.views = views
-        
-        # Widget central avec layout
+
         central_widget = QWidget()
         layout = QVBoxLayout(central_widget)
         layout.setContentsMargins(0, 0, 0, 0)
-        
-        # QStackedWidget pour naviguer entre les vues
+
         self.stack = QStackedWidget()
         layout.addWidget(self.stack)
-        
-        central_widget.setLayout(layout)
+
         self.setCentralWidget(central_widget)
-        
-        # Ajouter les views si elles existent
+
         for view in views.values():
             self.stack.addWidget(view)
-    
+
+    def set_current_user(self, user):
+        self.current_user = user
+
     def switch_to(self, view_name):
         if view_name in self.views:
-            self.stack.setCurrentWidget(self.views[view_name])
+            view = self.views[view_name]
+
+            if hasattr(view, "load"):
+                view.load()
+            elif hasattr(view, "refresh"):
+                view.refresh()
+
+            self.stack.setCurrentWidget(view)
