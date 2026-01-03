@@ -11,7 +11,7 @@ class ProfileModel:
         """, (utilisateur_id,))
 
         if not user:
-            return None
+            return {"success": False, "message": "Utilisateur introuvable"}
 
         voiture = Database.execute_one("""
             SELECT marque, modele, couleur, plaque, places_totales
@@ -20,12 +20,15 @@ class ProfileModel:
         """, (utilisateur_id,))
 
         return {
-            "id": user["id"],
-            "nom": user["nom"],
-            "prenom": user["prenom"],
-            "email": user["email"],
-            "telephone": user["telephone"],
-            "voiture": dict(voiture) if voiture else None
+            "success": True,
+            "profile": {  # <-- clé profile pour le client
+                "id": user["id"],
+                "nom": user["nom"],
+                "prenom": user["prenom"],
+                "email": user["email"],
+                "telephone": user["telephone"],
+                "voiture": dict(voiture) if voiture else None
+            }
         }
 
     @staticmethod

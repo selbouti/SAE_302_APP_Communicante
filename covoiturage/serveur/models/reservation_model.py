@@ -1,4 +1,3 @@
-from flask import jsonify
 from core.database import Database
 from models.trajet_model import TrajetModel
 
@@ -17,9 +16,10 @@ class ReservationModel:
     
     @staticmethod
     def get_by_passager(passager_id):
-        query = '''SELECT r.id, r.trajet_id, r.places_reservees, r.statut, r.created_at,
-                   t.depart, t.arrivee, t.date_depart, t.heure_depart, t.prix_par_place,
-                   u.nom, u.prenom, u.telephone, v.marque, v.modele
+        query = '''SELECT 
+                       r.id, r.trajet_id, r.places_reservees, r.statut, r.created_at,
+                       t.depart, t.arrivee, t.date_depart, t.heure_depart, t.prix_par_place,
+                       u.nom, u.prenom, u.telephone, v.marque, v.modele
                    FROM reservations r
                    JOIN trajets t ON r.trajet_id = t.id
                    JOIN utilisateurs u ON t.utilisateur_id = u.id
@@ -30,9 +30,12 @@ class ReservationModel:
     
     @staticmethod
     def get_by_trajet(trajet_id):
-        query = '''SELECT r.id, r.passager_id, r.places_reservees, r.statut, r.created_at,
-                   u.nom, u.prenom, u.email, u.telephone
+        query = '''SELECT 
+                       r.id, r.passager_id, r.places_reservees, r.statut, r.created_at,
+                       t.id as trajet_id, t.depart, t.arrivee, t.date_depart, t.heure_depart, t.prix_par_place,
+                       u.nom, u.prenom, u.email, u.telephone
                    FROM reservations r
+                   JOIN trajets t ON r.trajet_id = t.id
                    JOIN utilisateurs u ON r.passager_id = u.id
                    WHERE r.trajet_id = ?'''
         res = Database.execute(query, (trajet_id,))
@@ -49,5 +52,3 @@ class ReservationModel:
     @staticmethod
     def annuler(reservation_id):
         Database.execute('DELETE FROM reservations WHERE id=?', (reservation_id,))
-        
-        

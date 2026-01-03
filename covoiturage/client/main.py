@@ -21,8 +21,6 @@ if __name__ == '__main__':
     # Fenêtre principale
     main_window = MainWindow({})
 
-    # ⚠️ ID utilisateur temporaire (après login plus tard)
-    USER_ID = 1
 
     # Dictionnaire des vues
     views = {
@@ -33,7 +31,7 @@ if __name__ == '__main__':
         'mes_trajets': MesTrajetsView(main_window),
 
         'mes_reservations': ReservationsInvitationsView(main_window),
-        'profile': ProfileView(USER_ID, main_window),# ✅ CORRIGÉ
+        'profile': ProfileView(main_window),
         'mes_reservations': ReservationsInvitationsView(main_window)
     }
 

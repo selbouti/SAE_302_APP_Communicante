@@ -4,12 +4,9 @@ from PyQt5.QtWidgets import (
 )
 from controllers.profile_controller import ProfileController
 
-
 class ProfileView(QWidget):
-
-    def __init__(self, utilisateur_id, main_window=None):
+    def __init__(self, main_window):
         super().__init__()
-        self.utilisateur_id = utilisateur_id
         self.main_window = main_window
 
         layout = QVBoxLayout()
@@ -60,30 +57,49 @@ class ProfileView(QWidget):
         save_btn.clicked.connect(self.save)
         back_btn.clicked.connect(self.go_back)
 
-        self.load()
-
+    # 🔹 appelée uniquement après login
     def load(self):
-        response = ProfileController.get_profile(self.utilisateur_id)
-
-        if not response.get("success"):
-            QMessageBox.critical(self, "Erreur", "Impossible de charger le profil")
+        """Charge le profil de l'utilisateur connecté"""
+        if not self.main_window.current_user:
+            QMessageBox.warning(self, "Erreur", "Utilisateur non connecté")
+            self.main_window.switch_to("login")  # renvoie au login
             return
 
-        p = response["profile"]
-        self.nom.setText(p["nom"])
-        self.prenom.setText(p["prenom"])
-        self.email.setText(p["email"])
-        self.telephone.setText(p["telephone"])
+        user_id = self.main_window.current_user["id"]
+        response, erreur = ProfileController.get_profile(user_id)
+
+        if erreur:
+            # Affiche le message et retourne automatiquement au home ou login
+            QMessageBox.critical(self, "Erreur", "Impossible de charger le profil")
+            self.main_window.switch_to("home")
+            return
+
+        # Si tout va bien, on remplit le formulaire
+        p = response
+        self.nom.setText(p.get("nom", ""))
+        self.prenom.setText(p.get("prenom", ""))
+        self.email.setText(p.get("email", ""))
+        self.telephone.setText(p.get("telephone", ""))
 
         if p.get("voiture"):
             v = p["voiture"]
-            self.marque.setText(v["marque"])
-            self.modele.setText(v["modele"])
-            self.couleur.setText(v["couleur"])
-            self.plaque.setText(v["plaque"])
-            self.places.setValue(v["places_totales"])
+            self.marque.setText(v.get("marque", ""))
+            self.modele.setText(v.get("modele", ""))
+            self.couleur.setText(v.get("couleur", ""))
+            self.plaque.setText(v.get("plaque", ""))
+            self.places.setValue(v.get("places_totales", 1))
+
+
+    def go_back(self):
+        self.main_window.switch_to("home")
 
     def save(self):
+        if not self.main_window.current_user:
+            QMessageBox.warning(self, "Erreur", "Utilisateur non connecté")
+            return
+
+        user_id = self.main_window.current_user["id"]
+
         data = {
             "nom": self.nom.text(),
             "prenom": self.prenom.text(),
@@ -98,13 +114,9 @@ class ProfileView(QWidget):
             }
         }
 
-        response = ProfileController.update_profile(self.utilisateur_id, data)
+        response = ProfileController.update_profile(user_id, data)
 
         if response.get("success"):
             QMessageBox.information(self, "Succès", "Profil mis à jour ✔")
         else:
             QMessageBox.critical(self, "Erreur", "Erreur lors de la mise à jour")
-
-    def go_back(self):
-        if self.main_window:
-            self.main_window.switch_to("home")

@@ -37,6 +37,10 @@ class HomeView(QWidget):
         btns = QHBoxLayout()
         btns.setSpacing(14)
         
+        btn_profile = QPushButton("Mon profil")
+        btn_profile.clicked.connect(lambda: self.main_window.switch_to('profile'))
+        btns.addWidget(btn_profile)
+
         btn1 = QPushButton("Voir matching")
         btn1.clicked.connect(lambda: self.main_window.switch_to('matching'))
         btns.addWidget(btn1)
@@ -59,6 +63,7 @@ class HomeView(QWidget):
         layout.addWidget(container)
         layout.addStretch()
         self.setLayout(layout)
+
         self.setStyleSheet("""
             QWidget {
                 background: #ffffff;
