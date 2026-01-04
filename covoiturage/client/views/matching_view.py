@@ -138,7 +138,7 @@ class MatchingView(QWidget):
             else:
                 btn = QPushButton("Inviter")
                 btn.clicked.connect(
-                    lambda _, pid=trajet.utilisateur_id, tid=trajet.id:
+                    lambda _, pid=trajet.utilisateur_id, tid=self.trajet_combo.currentData():
                     self.inviter(pid, tid)
                 )
 
