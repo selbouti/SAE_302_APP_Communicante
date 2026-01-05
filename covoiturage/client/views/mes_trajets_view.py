@@ -83,18 +83,21 @@ class MesTrajetsView(QWidget):
                 for t in resp:
                     row = self.table.rowCount()
                     self.table.insertRow(row)
+                    est_passager = t.get('mode', '') == 'passager'
                     
                     self.table.setItem(row, 0, QTableWidgetItem(t.get('depart', '')))
                     self.table.setItem(row, 1, QTableWidgetItem(t.get('arrivee', '')))
                     self.table.setItem(row, 2, QTableWidgetItem(t.get('date_depart', '')))
                     self.table.setItem(row, 3, QTableWidgetItem(t.get('heure_depart', '')))
 
-                    # Voiture (marque + modele)
-                    voiture = f"{t.get('marque', 'N/A')} {t.get('modele', '')}"
-                    self.table.setItem(row, 4, QTableWidgetItem(voiture.strip()))
+                    # Voiture (marque + modele) - masqué si passager
+                    voiture = f"{t.get('marque', 'N/A')} {t.get('modele', '')}".strip()
+                    self.table.setItem(row, 4, QTableWidgetItem('' if est_passager else voiture))
 
                     self.table.setItem(row, 5, QTableWidgetItem(t.get('mode', '')))
-                    self.table.setItem(row, 6, QTableWidgetItem(str(t.get('prix_par_place', 0))))
+                    prix = t.get('prix_par_place', '')
+                    prix_affiche = '' if est_passager else str(prix if prix is not None else '')
+                    self.table.setItem(row, 6, QTableWidgetItem(prix_affiche))
 
                     toggle_btn = QPushButton("Basculer")
                     toggle_btn.clicked.connect(lambda _, t_id=t['id'], mode=t.get('mode', ''): self.basculer_mode(t_id, mode))
