@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import (
     QFileDialog, QLineEdit
 )
 from PyQt5.QtCore import Qt
+from views.common_style import COMMON_STYLE
 
 
 class EDTImportView(QWidget):
@@ -26,12 +27,11 @@ class EDTImportView(QWidget):
         # Titre
         self.title = QLabel("📅 Mettre à jour mon emploi du temps")
         self.title.setAlignment(Qt.AlignCenter)
-        self.title.setStyleSheet("font-size: 18px; font-weight: bold;")
+        self.title.setObjectName("titleLabel")
 
         # Infos EDT actuel
         self.current_edt_label = QLabel()
         self.current_edt_label.setAlignment(Qt.AlignCenter)
-        self.current_edt_label.setStyleSheet("margin: 10px;")
 
         # Bouton fichier
         self.btn_file = QPushButton("Choisir un fichier .ics")
@@ -56,6 +56,7 @@ class EDTImportView(QWidget):
         self.layout.addWidget(self.btn_url)
         self.layout.addWidget(self.btn_back)
         self.layout.addStretch()
+        self.setStyleSheet(COMMON_STYLE)
 
     def showEvent(self, event):
         """

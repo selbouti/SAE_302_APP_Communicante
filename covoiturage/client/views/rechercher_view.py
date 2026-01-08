@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox
 from controllers.reservation_controller import ReservationController
 from services.api_service import APIService
+from views.common_style import COMMON_STYLE
 
 class RechercherView(QWidget):
     def __init__(self, main_window):
@@ -10,7 +11,9 @@ class RechercherView(QWidget):
     
     def setup_ui(self):
         layout = QVBoxLayout()
-        layout.addWidget(QLabel("Chercher un trajet"))
+        title = QLabel("Chercher un trajet")
+        title.setObjectName("titleLabel")
+        layout.addWidget(title)
         
         layout.addWidget(QLabel("Départ:"))
         self.depart = QLineEdit()
@@ -38,6 +41,7 @@ class RechercherView(QWidget):
         layout.addWidget(back)
         
         self.setLayout(layout)
+        self.setStyleSheet(COMMON_STYLE)
     
     def rechercher(self):
         data = {'depart': self.depart.text(), 'arrivee': self.arrivee.text(), 'date_depart': self.date.text()}

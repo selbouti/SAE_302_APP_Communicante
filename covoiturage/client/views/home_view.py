@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import (
     QLabel, QPushButton, QFrame
 )
 from PyQt5.QtCore import Qt
+from views.common_style import COMMON_STYLE
 
 
 class HomeView(QWidget):
@@ -94,63 +95,4 @@ class HomeView(QWidget):
         layout.addWidget(container)
         layout.addStretch()
         self.setLayout(layout)
-
-        # ================= STYLE =================
-        self.setStyleSheet("""
-            QWidget {
-                background-color: #ffffff;
-                font-family: "Segoe UI", Arial, sans-serif;
-                font-size: 14px;
-                color: #1e1e1e;
-            }
-
-            QFrame#homeCard {
-                border: 2px solid #C62828;
-                border-radius: 10px;
-                background-color: #fdfdfd;
-            }
-
-            QLabel#titleLabel {
-                color: #C62828;
-                font-size: 26px;
-                font-weight: bold;
-                padding-bottom: 8px;
-            }
-
-            QLabel#welcomeLabel {
-                color: #444;
-                font-size: 16px;
-                font-weight: 600;
-            }
-
-            QLabel#subtitleLabel {
-                color: #777;
-                font-size: 14px;
-                padding-bottom: 16px;
-            }
-
-            QPushButton {
-                background-color: #C62828;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                padding: 10px 14px;
-                font-weight: bold;
-                min-width: 140px;
-            }
-
-            QPushButton:hover {
-                background-color: #B71C1C;
-            }
-
-            QPushButton#logoutButton {
-                background-color: white;
-                color: #C62828;
-                border: 1px solid #C62828;
-                margin-top: 16px;
-            }
-
-            QPushButton#logoutButton:hover {
-                background-color: #f8f8f8;
-            }
-        """)
+        self.setStyleSheet(COMMON_STYLE)

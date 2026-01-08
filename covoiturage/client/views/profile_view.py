@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 from controllers.profile_controller import ProfileController
+from views.common_style import COMMON_STYLE
 
 
 class ProfileView(QWidget):
@@ -35,11 +36,7 @@ class ProfileView(QWidget):
         # ================== Titre ==================
         title = QLabel("👤 Mon profil")
         title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("""
-            font-size:20px;
-            font-weight:bold;
-            color:#C62828;
-        """)
+        title.setObjectName("titleLabel")
         layout.addWidget(title)
 
         # ================== Formulaire ==================
@@ -58,16 +55,6 @@ class ProfileView(QWidget):
 
         for field in self.fields:
             field.setReadOnly(True)
-            field.setStyleSheet("""
-                QLineEdit {
-                    padding: 8px;
-                    border: 1px solid #C62828;
-                    border-radius: 4px;
-                }
-                QLineEdit:read-only {
-                    background-color: #F5F5F5;
-                }
-            """)
 
         form.addRow("Nom :", self.nom)
         form.addRow("Prénom :", self.prenom)
@@ -85,34 +72,6 @@ class ProfileView(QWidget):
         self.btn_voiture = QPushButton("🚗 Ma voiture")
         self.btn_back = QPushButton("⬅ Retour")
 
-        self.btn_edit.setStyleSheet("""
-            background-color:#C62828;
-            color:white;
-            padding:8px;
-            font-weight:bold;
-        """)
-
-        self.btn_save.setStyleSheet("""
-            background-color:#2E7D32;
-            color:white;
-            padding:8px;
-            font-weight:bold;
-        """)
-
-        self.btn_voiture.setStyleSheet("""
-            background-color:white;
-            border:1px solid #C62828;
-            padding:8px;
-            font-weight:bold;
-        """)
-
-        self.btn_back.setStyleSheet("""
-            background-color:white;
-            border:1px solid #C62828;
-            padding:8px;
-            font-weight:bold;
-        """)
-
         # Mode lecture seule par défaut
         self.btn_save.hide()
 
@@ -125,6 +84,7 @@ class ProfileView(QWidget):
         layout.addStretch()
 
         self.setLayout(layout)
+        self.setStyleSheet(COMMON_STYLE)
 
         # ================== Connexions ==================
         self.btn_edit.clicked.connect(self.enable_edit)

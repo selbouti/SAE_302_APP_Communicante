@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 from controllers.user_controller import UserController
+from views.common_style import COMMON_STYLE
 
 
 class LoginView(QWidget):
@@ -32,16 +33,11 @@ class LoginView(QWidget):
         # ================= HEADER =================
         title = QLabel("🚗 Covoiturage Daily")
         title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("""
-            font-size:26px;
-            font-weight:bold;
-            color:#C62828;
-        """)
+        title.setObjectName("titleLabel")
         layout.addWidget(title)
 
         subtitle = QLabel("Connexion à votre compte")
         subtitle.setAlignment(Qt.AlignCenter)
-        subtitle.setStyleSheet("color:#555; font-size:14px;")
         layout.addWidget(subtitle)
 
         # ================= CARD =================
@@ -53,7 +49,6 @@ class LoginView(QWidget):
 
         # Email
         email_label = QLabel("Email")
-        email_label.setStyleSheet("font-weight:bold;")
         card_layout.addWidget(email_label)
 
         self.email = QLineEdit()
@@ -62,7 +57,6 @@ class LoginView(QWidget):
 
         # Mot de passe
         pwd_label = QLabel("Mot de passe")
-        pwd_label.setStyleSheet("font-weight:bold;")
         card_layout.addWidget(pwd_label)
 
         self.password = QLineEdit()
@@ -90,7 +84,6 @@ class LoginView(QWidget):
         # Inscription
         register_label = QLabel("Première connexion ?")
         register_label.setAlignment(Qt.AlignCenter)
-        register_label.setStyleSheet("color:#444; font-weight:600;")
         card_layout.addWidget(register_label)
 
         register_btn = QPushButton("Créer un compte")
@@ -101,52 +94,7 @@ class LoginView(QWidget):
         layout.addStretch()
         self.setLayout(layout)
 
-        # ================= STYLE =================
-        self.setStyleSheet("""
-            QWidget {
-                background-color: #ffffff;
-                font-family: "Segoe UI", Arial, sans-serif;
-                font-size: 14px;
-            }
-
-            QFrame#loginCard {
-                border: 2px solid #C62828;
-                border-radius: 10px;
-                background-color: #fdfdfd;
-            }
-
-            QLineEdit {
-                border: 1px solid #C62828;
-                border-radius: 4px;
-                padding: 8px;
-            }
-
-            QPushButton {
-                border-radius: 6px;
-                padding: 8px 14px;
-                font-weight: bold;
-            }
-
-            QPushButton:hover {
-                opacity: 0.9;
-            }
-
-            QPushButton {
-                background-color: #f5f5f5;
-                color: #333;
-                border: 1px solid #ccc;
-            }
-
-            QPushButton:last-child {
-                background-color: #C62828;
-                color: white;
-                border: none;
-            }
-
-            QPushButton:last-child:hover {
-                background-color: #B71C1C;
-            }
-        """)
+        self.setStyleSheet(COMMON_STYLE)
 
     def login(self):
         """

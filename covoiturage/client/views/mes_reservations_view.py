@@ -2,6 +2,7 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QTabWidget, QMessageBox, QLabel
 from controllers.reservation_controller import ReservationController
 from controllers.invitation_controller import InvitationController
+from views.common_style import COMMON_STYLE
 
 class ReservationsInvitationsView(QWidget):
     def __init__(self, main_window):
@@ -33,6 +34,7 @@ class ReservationsInvitationsView(QWidget):
         layout.addWidget(back)
         
         self.setLayout(layout)
+        self.setStyleSheet(COMMON_STYLE)
     
     def setup_tab_reservations(self):
         """Configure l'onglet des réservations"""

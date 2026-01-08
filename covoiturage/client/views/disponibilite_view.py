@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import (
     QDateEdit, QListWidget
 )
 from PyQt5.QtCore import QDate
+from views.common_style import COMMON_STYLE
 
 
 class DisponibiliteView(QWidget):
@@ -17,7 +18,7 @@ class DisponibiliteView(QWidget):
         layout = QVBoxLayout()
 
         self.title = QLabel("📅 Mes disponibilités")
-        self.title.setStyleSheet("font-size:18px;font-weight:bold;")
+        self.title.setObjectName("titleLabel")
 
         self.date_picker = QDateEdit()
         self.date_picker.setCalendarPopup(True)
@@ -38,6 +39,7 @@ class DisponibiliteView(QWidget):
         layout.addWidget(self.btn_back)
 
         self.setLayout(layout)
+        self.setStyleSheet(COMMON_STYLE)
 
     def generate(self):
         date_py = self.date_picker.date().toPyDate()

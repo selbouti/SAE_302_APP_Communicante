@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 
 from controllers.matching_controller import MatchingController
+from views.common_style import COMMON_STYLE
 
 
 class MatchingView(QWidget):
@@ -42,17 +43,12 @@ class MatchingView(QWidget):
 
         title = QLabel("🚗 Trajets compatibles")
         title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("""
-            font-size:20px;
-            font-weight:bold;
-            color:#C62828;
-        """)
+        title.setObjectName("titleLabel")
         layout.addWidget(title)
 
         # Sélecteur de trajet
         select_layout = QHBoxLayout()
         label_select = QLabel("Choisir mon trajet :")
-        label_select.setStyleSheet("font-weight:bold;")
 
         self.trajet_combo = QComboBox()
         self.trajet_combo.currentIndexChanged.connect(self.charger)
@@ -63,7 +59,6 @@ class MatchingView(QWidget):
 
         self.info_label = QLabel("")
         self.info_label.setAlignment(Qt.AlignCenter)
-        self.info_label.setStyleSheet("color:#444;")
         layout.addWidget(self.info_label)
 
         # Tableau des trajets
@@ -77,18 +72,6 @@ class MatchingView(QWidget):
             "Places",
             "Action"
         ])
-        self.table.setStyleSheet("""
-            QTableWidget {
-                border: 1px solid #C62828;
-                gridline-color: #e0e0e0;
-            }
-            QHeaderView::section {
-                background-color: #f5f5f5;
-                color: #C62828;
-                font-weight: bold;
-                padding: 6px;
-            }
-        """)
         layout.addWidget(self.table)
 
         # Boutons
@@ -100,22 +83,10 @@ class MatchingView(QWidget):
         back = QPushButton("⬅ Retour")
         back.clicked.connect(lambda: self.main_window.switch_to("home"))
 
-        for btn in (refresh, back):
-            btn.setStyleSheet("""
-                QPushButton {
-                    background-color:#C62828;
-                    color:white;
-                    padding:8px;
-                    border-radius:4px;
-                }
-                QPushButton:hover {
-                    background-color:#B71C1C;
-                }
-            """)
-
         btn_layout.addWidget(refresh)
         btn_layout.addWidget(back)
         layout.addLayout(btn_layout)
+        self.setStyleSheet(COMMON_STYLE)
 
     # ==================================================
     # CYCLE DE VIE
@@ -220,17 +191,6 @@ class MatchingView(QWidget):
                     tid=self.trajet_combo.currentData():
                     self.inviter(pid, tid)
                 )
-
-            btn.setStyleSheet("""
-                QPushButton {
-                    background-color:#C62828;
-                    color:white;
-                    padding:5px;
-                }
-                QPushButton:hover {
-                    background-color:#B71C1C;
-                }
-            """)
 
             self.table.setCellWidget(row, 6, btn)
 

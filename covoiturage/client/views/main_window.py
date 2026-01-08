@@ -76,20 +76,25 @@ class MainWindow(QMainWindow):
         menubar = self.menuBar()
         menubar.setStyleSheet("""
             QMenuBar {
-                background-color: #C62828;
-                color: white;
+                background-color: #c21807;
+                color: #ffffff;
                 font-size: 15px;
-                font-weight: bold;
+                font-weight: 600;
             }
             QMenuBar::item {
                 padding: 6px 12px;
             }
             QMenuBar::item:selected {
-                background-color: #B71C1C;
+                background-color: #d6281a;
             }
             QMenu {
-                background-color: white;
+                background-color: #ffffff;
+                color: #1e1e1e;
                 font-size: 14px;
+            }
+            QMenu::item:selected {
+                background-color: #ffe6e6;
+                color: #b00020;
             }
         """)
 
@@ -170,20 +175,23 @@ class MainWindow(QMainWindow):
         self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setStyleSheet("""
             QToolBar {
-                background-color: #F5F5F5;
+                background-color: #f7f7f7;
                 spacing: 10px;
                 padding: 6px;
             }
             QToolButton {
-                background-color: white;
-                border: 1px solid #C62828;
+                background-color: #c21807;
+                color: #ffffff;
+                border: 1px solid #9c1a06;
                 border-radius: 4px;
-                padding: 6px;
-                font-weight: bold;
+                padding: 6px 10px;
+                font-weight: 600;
             }
             QToolButton:hover {
-                background-color: #C62828;
-                color: white;
+                background-color: #d6281a;
+            }
+            QToolButton:pressed {
+                background-color: #8c1505;
             }
         """)
 

@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 from controllers.voiture_controller import VoitureController
+from views.common_style import COMMON_STYLE
 
 
 class VoitureView(QWidget):
@@ -41,9 +42,7 @@ class VoitureView(QWidget):
 
         title = QLabel("🚗 Ma voiture")
         title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet(
-            "font-size:20px; font-weight:bold; color:#C62828;"
-        )
+        title.setObjectName("titleLabel")
 
         # ================== Champs ==================
         self.marque = QLineEdit()
@@ -67,25 +66,8 @@ class VoitureView(QWidget):
 
         for field in self.fields:
             field.setReadOnly(True)
-            field.setStyleSheet("""
-                QLineEdit {
-                    padding: 8px;
-                    border: 1px solid #C62828;
-                    border-radius: 4px;
-                }
-                QLineEdit:read-only {
-                    background-color: #F5F5F5;
-                }
-            """)
 
         self.motorisation.setEnabled(False)
-        self.motorisation.setStyleSheet("""
-            QComboBox {
-                padding: 6px;
-                border: 1px solid #C62828;
-                border-radius: 4px;
-            }
-        """)
 
         form.addRow("Marque :", self.marque)
         form.addRow("Modèle :", self.modele)
@@ -104,19 +86,6 @@ class VoitureView(QWidget):
         self.btn_delete = QPushButton("❌ Supprimer")
         self.btn_back = QPushButton("⬅ Retour")
 
-        self.btn_edit.setStyleSheet(
-            "background-color:#C62828; color:white; padding:8px;"
-        )
-        self.btn_save.setStyleSheet(
-            "background-color:#2E7D32; color:white; padding:8px;"
-        )
-        self.btn_delete.setStyleSheet(
-            "background-color:#C62828; color:white; padding:8px;"
-        )
-        self.btn_back.setStyleSheet(
-            "background-color:white; border:1px solid #C62828; padding:8px;"
-        )
-
         # Bouton sauvegarde masqué tant que pas en édition
         self.btn_save.hide()
 
@@ -131,6 +100,7 @@ class VoitureView(QWidget):
         layout.addStretch()
 
         self.setLayout(layout)
+        self.setStyleSheet(COMMON_STYLE)
 
         # ================== Connexions ==================
         self.btn_edit.clicked.connect(self.enable_edit)

@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 from controllers.user_controller import UserController
+from views.common_style import COMMON_STYLE
 
 import os
 
@@ -40,29 +41,17 @@ class RegisterView(QWidget):
 
         # ---------- Titre ----------
         title = QLabel("📝 Inscription")
-        title.setStyleSheet("""
-            font-size:22px;
-            font-weight:bold;
-            color:#C62828;
-        """)
+        title.setObjectName("titleLabel")
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
 
         # ---------- Champs ----------
         def styled_input():
             field = QLineEdit()
-            field.setStyleSheet("""
-                QLineEdit {
-                    padding: 8px;
-                    border: 1px solid #C62828;
-                    border-radius: 4px;
-                }
-            """)
             return field
 
         def label(text):
             lbl = QLabel(text)
-            lbl.setStyleSheet("font-weight:bold;")
             return lbl
 
         layout.addWidget(label("Nom :"))
@@ -88,60 +77,25 @@ class RegisterView(QWidget):
 
         layout.addWidget(label("Fichier iCalendar (optionnel) :"))
         self.file_label = QLabel("Aucun fichier sélectionné")
-        self.file_label.setStyleSheet("color:gray;")
         layout.addWidget(self.file_label)
 
         browse_btn = QPushButton("📂 Parcourir...")
-        browse_btn.setStyleSheet("""
-            QPushButton {
-                background-color: white;
-                border: 1px solid #C62828;
-                padding: 8px;
-                font-weight:bold;
-            }
-            QPushButton:hover {
-                background-color: #C62828;
-                color: white;
-            }
-        """)
         browse_btn.clicked.connect(self.browse_file)
         layout.addWidget(browse_btn)
 
         # ---------- Boutons ----------
         register_btn = QPushButton("S'inscrire")
-        register_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #C62828;
-                color: white;
-                padding: 10px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #B71C1C;
-            }
-        """)
         register_btn.clicked.connect(self.register)
         layout.addWidget(register_btn)
 
         back_btn = QPushButton("⬅ Retour")
-        back_btn.setStyleSheet("""
-            QPushButton {
-                background-color: white;
-                border: 1px solid #C62828;
-                padding: 8px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #C62828;
-                color: white;
-            }
-        """)
         back_btn.clicked.connect(
             lambda: self.main_window.switch_to('login')
         )
         layout.addWidget(back_btn)
 
         self.setLayout(layout)
+        self.setStyleSheet(COMMON_STYLE)
 
     def browse_file(self):
         """
