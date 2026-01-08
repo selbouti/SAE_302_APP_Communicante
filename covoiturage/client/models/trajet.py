@@ -8,7 +8,7 @@ class Trajet:
         self.arrivee = data["arrivee"]
 
         self.heure_depart = data.get("heure_depart", "")
-        self.heure_arrivee = data.get("heure_arrivee", "")
+        self.heure_retour = data.get("heure_retour", "")
 
         self.voiture = f"{data.get('marque', '')} {data.get('modele', '')}".strip()
         self.prix = f"{data['prix_par_place']} €"

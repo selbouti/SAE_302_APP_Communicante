@@ -30,9 +30,13 @@ class TrajetView(QWidget):
         self.jour = QLineEdit()
         layout.addWidget(self.jour)
         
-        layout.addWidget(QLabel("Heure (HH:MM):"))
+        layout.addWidget(QLabel("Heure départ (HH:MM):"))
         self.heure = QLineEdit()
         layout.addWidget(self.heure)
+
+        layout.addWidget(QLabel("Heure retour (HH:MM):"))
+        self.heure_retour = QLineEdit()
+        layout.addWidget(self.heure_retour)
         
         layout.addWidget(QLabel("Places:"))
         self.places = QSpinBox()
@@ -65,6 +69,7 @@ class TrajetView(QWidget):
                 'date_depart': self.date.text(),
                 'jour_semaine': self.jour.text(),
                 'heure_depart': self.heure.text(),
+                'heure_retour': self.heure_retour.text(),
                 'places_totales': self.places.value(),
                 'prix_par_place': float(self.prix.text())
             }

@@ -43,6 +43,10 @@ def migrate_db(conn):
     if 'heure_depart' not in columns:
         print("✓ Ajout colonne heure_depart à trajets...")
         c.execute('ALTER TABLE trajets ADD COLUMN heure_depart TEXT')
+
+    if 'heure_retour' not in columns:
+        print("✓ Ajout colonne heure_retour à trajets...")
+        c.execute('ALTER TABLE trajets ADD COLUMN heure_retour TEXT')
     
     if 'mode' not in columns:
         print("✓ Ajout colonne mode à trajets...")
@@ -92,6 +96,7 @@ def init_db():
         date_depart TEXT,
         jour_semaine TEXT,
         heure_depart TEXT,
+        heure_retour TEXT,
         prix_par_place REAL,
         mode TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

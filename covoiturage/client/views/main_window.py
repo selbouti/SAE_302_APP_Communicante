@@ -76,7 +76,7 @@ class MainWindow(QMainWindow):
         menubar = self.menuBar()
         menubar.setStyleSheet("""
             QMenuBar {
-                background-color: #c21807;
+                background-color: #8b1a1a;
                 color: #ffffff;
                 font-size: 15px;
                 font-weight: 600;
@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
                 padding: 6px 12px;
             }
             QMenuBar::item:selected {
-                background-color: #d6281a;
+                background-color: #a32020;
             }
             QMenu {
                 background-color: #ffffff;
@@ -93,8 +93,8 @@ class MainWindow(QMainWindow):
                 font-size: 14px;
             }
             QMenu::item:selected {
-                background-color: #ffe6e6;
-                color: #b00020;
+                background-color: #f3dede;
+                color: #7a1111;
             }
         """)
 
@@ -150,10 +150,10 @@ class MainWindow(QMainWindow):
         # ===== AIDE =====
         menu_aide = menubar.addMenu("Aide")
 
-        action_about = QAction("À propos", self)
-        action_about.triggered.connect(self.show_about)
+        self.act_about = QAction("À propos", self)
+        self.act_about.triggered.connect(self.show_about)
 
-        menu_aide.addAction(action_about)
+        menu_aide.addAction(self.act_about)
 
     # =====================================================
     # TOOLBAR
@@ -173,25 +173,29 @@ class MainWindow(QMainWindow):
         self.toolbar = QToolBar("Navigation")
         self.toolbar.setMovable(False)
         self.toolbar.setIconSize(QSize(24, 24))
+        self.toolbar.setOrientation(Qt.Vertical)
+        self.toolbar.setToolButtonStyle(Qt.ToolButtonTextOnly)
         self.toolbar.setStyleSheet("""
             QToolBar {
                 background-color: #f7f7f7;
-                spacing: 10px;
-                padding: 6px;
+                spacing: 8px;
+                padding: 8px;
             }
             QToolButton {
-                background-color: #c21807;
+                background-color: #8b1a1a;
                 color: #ffffff;
-                border: 1px solid #9c1a06;
+                border: 1px solid #6f1212;
                 border-radius: 4px;
-                padding: 6px 10px;
+                padding: 8px 10px;
                 font-weight: 600;
+                min-width: 140px;
+                text-align: left;
             }
             QToolButton:hover {
-                background-color: #d6281a;
+                background-color: #a32020;
             }
             QToolButton:pressed {
-                background-color: #8c1505;
+                background-color: #6b1212;
             }
         """)
 
@@ -203,8 +207,9 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(self.act_resa)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.act_logout)
+        self.toolbar.addAction(self.act_about)
 
-        self.addToolBar(self.toolbar)
+        self.addToolBar(Qt.LeftToolBarArea, self.toolbar)
 
     # =====================================================
     # NAVIGATION
@@ -230,6 +235,9 @@ class MainWindow(QMainWindow):
         """
         if view_name in ("login", "register"):
             self.menuBar().hide()
+            self.toolbar.hide()
+        elif view_name == "home":
+            self.menuBar().show()
             self.toolbar.hide()
         else:
             self.menuBar().show()

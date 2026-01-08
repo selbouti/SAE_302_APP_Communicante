@@ -39,3 +39,9 @@ class MatchingController:
             trajet_id,
             passager_id
         )
+
+    def rechercher_conducteurs_marges(self, data):
+        return APIService.post(
+            f"matching_marges/{self.user['id']}",
+            data
+        )

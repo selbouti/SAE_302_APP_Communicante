@@ -19,6 +19,7 @@ def creer_trajet():
         data['date_depart'],
         data['jour_semaine'],
         data['heure_depart'],
+        data.get('heure_retour'),
         data['prix_par_place'],
         data['mode']
     )

@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-    QPushButton, QTableWidget, QTableWidgetItem,
+    QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel,
+    QPushButton, QTableWidget, QTableWidgetItem, QGroupBox,
     QMessageBox, QComboBox
 )
 from PyQt5.QtCore import Qt
@@ -40,8 +40,9 @@ class MatchingView(QWidget):
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignTop)
         layout.setSpacing(12)
+        layout.setContentsMargins(20, 16, 20, 16)
 
-        title = QLabel("🚗 Trajets compatibles")
+        title = QLabel("Trajets compatibles")
         title.setAlignment(Qt.AlignCenter)
         title.setObjectName("titleLabel")
         layout.addWidget(title)
@@ -51,7 +52,7 @@ class MatchingView(QWidget):
         label_select = QLabel("Choisir mon trajet :")
 
         self.trajet_combo = QComboBox()
-        self.trajet_combo.currentIndexChanged.connect(self.charger)
+        self.trajet_combo.currentIndexChanged.connect(self.on_trajet_change)
 
         select_layout.addWidget(label_select)
         select_layout.addWidget(self.trajet_combo)
@@ -61,9 +62,41 @@ class MatchingView(QWidget):
         self.info_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.info_label)
 
+        # Bloc marges
+        marges_box = QGroupBox("Recherche avec marges")
+        marges_layout = QVBoxLayout(marges_box)
+        marges_layout.setSpacing(10)
+
+        form_marges = QFormLayout()
+        form_marges.setSpacing(8)
+
+        self.date_value = QLabel("-")
+        self.heure_aller_value = QLabel("-")
+        self.heure_retour_value = QLabel("-")
+
+        self.marge_aller = QComboBox()
+        self.marge_retour = QComboBox()
+        self._populate_marges()
+
+        form_marges.addRow("Date :", self.date_value)
+        form_marges.addRow("Heure aller :", self.heure_aller_value)
+        form_marges.addRow("Marge aller :", self.marge_aller)
+        form_marges.addRow("Heure retour :", self.heure_retour_value)
+        form_marges.addRow("Marge retour :", self.marge_retour)
+        marges_layout.addLayout(form_marges)
+
+        self.btn_marges = QPushButton("Rechercher avec marges")
+        self.btn_marges.clicked.connect(self.charger_marges)
+        marges_layout.addWidget(self.btn_marges)
+
+        self.info_marges_label = QLabel("")
+        self.info_marges_label.setAlignment(Qt.AlignCenter)
+        marges_layout.addWidget(self.info_marges_label)
+        layout.addWidget(marges_box)
+
         # Tableau des trajets
         self.table = QTableWidget(0, 7)
-        self.table.setHorizontalHeaderLabels([
+        self.standard_headers = [
             "Conducteur",
             "Départ",
             "Arrivée",
@@ -71,7 +104,16 @@ class MatchingView(QWidget):
             "Prix",
             "Places",
             "Action"
-        ])
+        ]
+        self.marges_headers = [
+            "Conducteur",
+            "Aller",
+            "Retour",
+            "Places",
+            "Trajets",
+            "Action"
+        ]
+        self._set_table_headers(self.standard_headers)
         layout.addWidget(self.table)
 
         # Boutons
@@ -106,7 +148,7 @@ class MatchingView(QWidget):
         )
 
         self.charger_trajets_perso()
-        self.charger()
+        self.on_trajet_change()
 
     # ==================================================
     # DONNÉES
@@ -120,18 +162,32 @@ class MatchingView(QWidget):
 
         if status == 200:
             for t in resp:
+                heure = t.get("heure_depart", "")
+                heure_txt = f" a {heure}" if heure else ""
                 label = (
                     f"{t['depart']} → {t['arrivee']} "
-                    f"le {t['date_depart']} ({t['mode']})"
+                    f"le {t['date_depart']}{heure_txt} ({t['mode']})"
                 )
-                self.trajet_combo.addItem(label, t['id'])
+                self.trajet_combo.addItem(label, t)
+
+        if self.trajet_combo.count() == 0:
+            self.info_label.setText("Aucun trajet disponible")
+        else:
+            self._sync_trajet_fields()
+
+    def on_trajet_change(self):
+        self._sync_trajet_fields()
+        self.charger()
 
     def charger(self):
         """
         Charge les trajets compatibles.
         """
+        self._set_table_headers(self.standard_headers)
         self.table.setRowCount(0)
-        trajet_id = self.trajet_combo.currentData()
+        self.info_marges_label.setText("")
+        trajet = self._current_trajet()
+        trajet_id = trajet.get("id") if trajet else None
 
         if not trajet_id:
             self.info_label.setText("Sélectionnez un trajet")
@@ -157,23 +213,30 @@ class MatchingView(QWidget):
         trajets = data["trajets_compatibles"]
         mode = data["mode_recherche"]
 
+        heure_depart = mon.get("heure_depart", "")
+        heure_retour = mon.get("heure_retour", "")
+        heures = ""
+        if heure_depart and heure_retour:
+            heures = f"{heure_depart} / {heure_retour}"
+        elif heure_depart:
+            heures = heure_depart
+
         self.info_label.setText(
-            f"{mon['depart']} → {mon['arrivee']} ({mon['mode']})"
+            f"{mon['depart']} → {mon['arrivee']} "
+            f"({mon['mode']}) {heures}".strip()
         )
 
         for trajet in trajets:
             row = self.table.rowCount()
             self.table.insertRow(row)
 
+            depart_txt = (
+                f"{trajet.heure_depart} / {trajet.depart}"
+                if trajet.heure_depart else trajet.depart
+            )
             self.table.setItem(row, 0, QTableWidgetItem(trajet.conducteur))
-            self.table.setItem(
-                row, 1,
-                QTableWidgetItem(f"{trajet.heure_depart} / {trajet.depart}")
-            )
-            self.table.setItem(
-                row, 2,
-                QTableWidgetItem(f"{trajet.heure_arrivee} / {trajet.arrivee}")
-            )
+            self.table.setItem(row, 1, QTableWidgetItem(depart_txt))
+            self.table.setItem(row, 2, QTableWidgetItem(trajet.arrivee))
             self.table.setItem(row, 3, QTableWidgetItem(trajet.voiture))
             self.table.setItem(row, 4, QTableWidgetItem(trajet.prix))
             self.table.setItem(row, 5, QTableWidgetItem(str(trajet.places)))
@@ -188,7 +251,7 @@ class MatchingView(QWidget):
                 btn = QPushButton("Inviter")
                 btn.clicked.connect(
                     lambda _, pid=trajet.utilisateur_id,
-                    tid=self.trajet_combo.currentData():
+                    tid=self._current_trajet_id():
                     self.inviter(pid, tid)
                 )
 
@@ -225,3 +288,150 @@ class MatchingView(QWidget):
             QMessageBox.warning(
                 self, "Erreur", resp.get("error", "Erreur")
             )
+
+    def charger_marges(self):
+        self._set_table_headers(self.marges_headers)
+        self.table.setRowCount(0)
+        self.info_marges_label.setText("")
+        self.info_label.setText("")
+
+        trajet = self._current_trajet()
+        if not trajet:
+            self.info_marges_label.setText("Sélectionnez un trajet")
+            return
+
+        heure_aller = self._format_time(trajet.get("heure_depart", ""))
+        heure_retour = self._format_time(trajet.get("heure_retour", "")) or heure_aller
+        data = {
+            "depart": trajet.get("depart", ""),
+            "arrivee": trajet.get("arrivee", ""),
+            "date": trajet.get("date_depart", ""),
+            "heure_aller": heure_aller,
+            "marge_aller": self.marge_aller.currentData(),
+            "heure_retour": heure_retour,
+            "marge_retour": self.marge_retour.currentData(),
+        }
+
+        resp, status = self.controller.rechercher_conducteurs_marges(data)
+        if status != 200:
+            self.info_marges_label.setText(
+                resp.get("error", "Erreur de chargement")
+            )
+            return
+
+        conducteurs = resp.get("conducteurs", [])
+        conducteur_min = resp.get("conducteur_moins_trajets")
+        conducteur_min_id = (
+            conducteur_min.get("conducteur_id") if conducteur_min else None
+        )
+
+        if conducteur_min:
+            self.info_marges_label.setText(
+                f"Conducteur recommande : {conducteur_min.get('prenom', '')} "
+                f"{conducteur_min.get('nom', '')} "
+                f"({conducteur_min.get('nb_trajets', 0)} trajets)"
+            )
+        else:
+            self.info_marges_label.setText("Aucun conducteur compatible")
+
+        for c in conducteurs:
+            row = self.table.rowCount()
+            self.table.insertRow(row)
+
+            nom = f"{c.get('prenom', '')} {c.get('nom', '')}".strip()
+            if c.get("conducteur_id") == conducteur_min_id:
+                nom = f"{nom} (recommande)"
+
+            self.table.setItem(row, 0, QTableWidgetItem(nom))
+            self.table.setItem(
+                row, 1, QTableWidgetItem(c.get("heure_aller", ""))
+            )
+            self.table.setItem(
+                row, 2, QTableWidgetItem(c.get("heure_retour", ""))
+            )
+            self.table.setItem(
+                row, 3, QTableWidgetItem(str(c.get("places_dispo", 0)))
+            )
+            self.table.setItem(
+                row, 4, QTableWidgetItem(str(c.get("nb_trajets", 0)))
+            )
+
+            btn = QPushButton("Choisir")
+            btn.clicked.connect(
+                lambda _, tid=c.get("trajet_id"):
+                self.reserver_marge(tid)
+            )
+            self.table.setCellWidget(row, 5, btn)
+
+    def reserver_marge(self, trajet_id):
+        if not trajet_id:
+            QMessageBox.warning(self, "Erreur", "Trajet invalide")
+            return
+
+        resp, status = self.controller.reserver(trajet_id)
+        if status != 201:
+            QMessageBox.warning(
+                self,
+                "Erreur",
+                resp.get("error", "Erreur reservation")
+            )
+            return
+
+        QMessageBox.information(
+            self,
+            "Succès",
+            "Réservation confirmée"
+        )
+        self.charger_marges()
+
+    def _populate_marges(self):
+        self.marge_aller.clear()
+        self.marge_retour.clear()
+        options = [
+            ("15 min", 15),
+            ("30 min", 30),
+            ("1h", 60),
+            ("2h", 120),
+            ("3h", 180),
+        ]
+        for label, minutes in options:
+            self.marge_aller.addItem(label, minutes)
+            self.marge_retour.addItem(label, minutes)
+
+    def _set_table_headers(self, headers):
+        self.table.setColumnCount(len(headers))
+        self.table.setHorizontalHeaderLabels(headers)
+
+    def _current_trajet(self):
+        trajet = self.trajet_combo.currentData()
+        if isinstance(trajet, dict):
+            return trajet
+        return None
+
+    def _current_trajet_id(self):
+        trajet = self._current_trajet()
+        return trajet.get("id") if trajet else None
+
+    def _sync_trajet_fields(self):
+        trajet = self._current_trajet()
+        if not trajet:
+            self.date_value.setText("-")
+            self.heure_aller_value.setText("-")
+            self.heure_retour_value.setText("-")
+            return
+
+        date_str = trajet.get("date_depart", "") or "-"
+        self.date_value.setText(date_str)
+
+        aller_str = self._format_time(trajet.get("heure_depart", "")) or "-"
+        retour_str = self._format_time(trajet.get("heure_retour", "")) or aller_str
+        self.heure_aller_value.setText(aller_str)
+        self.heure_retour_value.setText(retour_str)
+
+    def _format_time(self, time_str):
+        if not time_str:
+            return ""
+        parts = time_str.split(":")
+        if len(parts) >= 2:
+            return f"{parts[0].zfill(2)}:{parts[1].zfill(2)}"
+        return time_str

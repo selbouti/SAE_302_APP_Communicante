@@ -39,9 +39,9 @@ class MesTrajetsView(QWidget):
         layout.addWidget(title)
 
         self.table = QTableWidget()
-        self.table.setColumnCount(9)
+        self.table.setColumnCount(10)
         self.table.setHorizontalHeaderLabels([
-            'Départ', 'Arrivée', 'Date', 'Heure',
+            'Départ', 'Arrivée', 'Date', 'Heure', 'Retour',
             'Voiture', 'Mode', 'Prix',
             'Changer mode', 'Supprimer'
         ])
@@ -109,23 +109,27 @@ class MesTrajetsView(QWidget):
                         row, 3,
                         QTableWidgetItem(t.get('heure_depart', ''))
                     )
+                    self.table.setItem(
+                        row, 4,
+                        QTableWidgetItem(t.get('heure_retour', ''))
+                    )
 
                     # Voiture masquée si passager
                     voiture = f"{t.get('marque', 'N/A')} {t.get('modele', '')}".strip()
                     self.table.setItem(
-                        row, 4,
+                        row, 5,
                         QTableWidgetItem('' if est_passager else voiture)
                     )
 
                     self.table.setItem(
-                        row, 5,
+                        row, 6,
                         QTableWidgetItem(t.get('mode', ''))
                     )
 
                     prix = t.get('prix_par_place', '')
                     prix_affiche = '' if est_passager else str(prix if prix is not None else '')
                     self.table.setItem(
-                        row, 6,
+                        row, 7,
                         QTableWidgetItem(prix_affiche)
                     )
 
@@ -134,14 +138,14 @@ class MesTrajetsView(QWidget):
                         lambda _, t_id=t['id'], mode=t.get('mode', ''):
                         self.basculer_mode(t_id, mode)
                     )
-                    self.table.setCellWidget(row, 7, toggle_btn)
+                    self.table.setCellWidget(row, 8, toggle_btn)
 
                     delete_btn = QPushButton("Supprimer")
                     delete_btn.clicked.connect(
                         lambda _, t_id=t['id']:
                         self.supprimer(t_id)
                     )
-                    self.table.setCellWidget(row, 8, delete_btn)
+                    self.table.setCellWidget(row, 9, delete_btn)
 
         except Exception as e:
             print(f"Erreur chargement trajets: {e}")

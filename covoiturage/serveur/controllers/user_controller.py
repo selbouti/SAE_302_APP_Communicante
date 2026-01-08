@@ -43,12 +43,13 @@ def upload_icalendar(user_id):
             if t['dtstart']:
                 trajet_id = TrajetModel.create(
                     utilisateur_id=user_id,
+                    voiture_id=None,
                     depart=t['summary'].split(' - ')[0] if ' - ' in t['summary'] else 'Départ',
                     arrivee=t['summary'].split(' - ')[1] if ' - ' in t['summary'] else 'Arrivée',
                     date_depart=t['dtstart'].strftime('%Y-%m-%d'),
                     jour_semaine=t['dtstart'].strftime('%A'),
                     heure_depart=t['dtstart'].strftime('%H:%M'),
-                    places_totales=4,
+                    heure_retour=t['dtstart'].strftime('%H:%M'),
                     prix_par_place=5.0,
                     mode='conducteur'  # Par défaut conducteur
                 )
