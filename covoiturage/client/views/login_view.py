@@ -1,145 +1,167 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QFrame
+from PyQt5.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+    QLineEdit, QPushButton, QMessageBox, QFrame
+)
+from PyQt5.QtCore import Qt
 from controllers.user_controller import UserController
 
+
 class LoginView(QWidget):
+    """
+    Vue de connexion utilisateur.
+    """
+
     def __init__(self, main_window):
+        """
+        Initialise la vue de connexion.
+
+        :param main_window: Fenêtre principale
+        """
         super().__init__()
         self.main_window = main_window
         self.setup_ui()
-    
+
     def setup_ui(self):
+        """
+        Construit l'interface graphique.
+        """
         layout = QVBoxLayout()
-        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setContentsMargins(32, 32, 32, 32)
         layout.setSpacing(24)
 
-        # En-tête
-        header_layout = QHBoxLayout()
-        logo = QLabel("🚗")
-        logo.setObjectName("logo")
-        title = QLabel("Application de covoiturage")
-        title.setObjectName("titleLabel")
-        header_layout.addWidget(logo)
-        header_layout.addWidget(title)
-        header_layout.addStretch()
-        layout.addLayout(header_layout)
+        # ================= HEADER =================
+        title = QLabel("🚗 Covoiturage Daily")
+        title.setAlignment(Qt.AlignCenter)
+        title.setStyleSheet("""
+            font-size:26px;
+            font-weight:bold;
+            color:#C62828;
+        """)
+        layout.addWidget(title)
 
-        # Card
+        subtitle = QLabel("Connexion à votre compte")
+        subtitle.setAlignment(Qt.AlignCenter)
+        subtitle.setStyleSheet("color:#555; font-size:14px;")
+        layout.addWidget(subtitle)
+
+        # ================= CARD =================
         card = QFrame()
         card.setObjectName("loginCard")
         card_layout = QVBoxLayout(card)
         card_layout.setContentsMargins(24, 24, 24, 24)
         card_layout.setSpacing(16)
 
-        email_label = QLabel("Nom de l'utilisateur")
-        email_label.setObjectName("fieldLabel")
+        # Email
+        email_label = QLabel("Email")
+        email_label.setStyleSheet("font-weight:bold;")
         card_layout.addWidget(email_label)
+
         self.email = QLineEdit()
-        self.email.setPlaceholderText("your@email.com")
+        self.email.setPlaceholderText("exemple@email.com")
         card_layout.addWidget(self.email)
-        
+
+        # Mot de passe
         pwd_label = QLabel("Mot de passe")
-        pwd_label.setObjectName("fieldLabel")
+        pwd_label.setStyleSheet("font-weight:bold;")
         card_layout.addWidget(pwd_label)
-        pwd_row = QHBoxLayout()
+
         self.password = QLineEdit()
         self.password.setEchoMode(QLineEdit.Password)
-        pwd_row.addWidget(self.password)
-        pwd_row.addStretch()
-        card_layout.addLayout(pwd_row)
+        card_layout.addWidget(self.password)
 
-        # Boutons action
+        # Boutons
         btn_row = QHBoxLayout()
+
         cancel_btn = QPushButton("Annuler")
-        cancel_btn.setObjectName("cancelButton")
         cancel_btn.clicked.connect(lambda: self.main_window.switch_to('login'))
-        btn_row.addWidget(cancel_btn)
-        
+
         login_btn = QPushButton("Se connecter")
-        login_btn.setObjectName("primaryButton")
         login_btn.clicked.connect(self.login)
-        btn_row.addWidget(login_btn)
+
+        for btn in (cancel_btn, login_btn):
+            btn.setMinimumHeight(36)
+
+        btn_row.addWidget(cancel_btn)
         btn_row.addStretch()
+        btn_row.addWidget(login_btn)
+
         card_layout.addLayout(btn_row)
 
-        # Lien inscription
+        # Inscription
         register_label = QLabel("Première connexion ?")
-        register_label.setObjectName("subtitle")
+        register_label.setAlignment(Qt.AlignCenter)
+        register_label.setStyleSheet("color:#444; font-weight:600;")
         card_layout.addWidget(register_label)
+
         register_btn = QPushButton("Créer un compte")
-        register_btn.setObjectName("ghostButton")
         register_btn.clicked.connect(lambda: self.main_window.switch_to('register'))
         card_layout.addWidget(register_btn)
 
         layout.addWidget(card)
         layout.addStretch()
         self.setLayout(layout)
+
+        # ================= STYLE =================
         self.setStyleSheet("""
             QWidget {
-                background: #ffffff;
-                color: #1e1e1e;
-                font-family: "Open Sans", "Segoe UI", Arial, sans-serif;
+                background-color: #ffffff;
+                font-family: "Segoe UI", Arial, sans-serif;
                 font-size: 14px;
             }
-            QLabel#logo {
-                font-size: 28px;
-                padding-right: 8px;
-            }
-            QLabel#titleLabel {
-                color: #b57b7b;
-                font-size: 28px;
-                font-weight: 800;
-            }
+
             QFrame#loginCard {
-                border: 2px solid #4a4a4a;
+                border: 2px solid #C62828;
                 border-radius: 10px;
-                background: #fdfdfd;
+                background-color: #fdfdfd;
             }
-            QLabel#fieldLabel {
-                color: #2c2c2c;
-                font-weight: 700;
-            }
-            QLabel#subtitle {
-                color: #4a4a4a;
-                font-weight: 600;
-                padding-top: 8px;
-            }
+
             QLineEdit {
-                border: 1px solid #9b9b9b;
+                border: 1px solid #C62828;
                 border-radius: 4px;
                 padding: 8px;
             }
+
             QPushButton {
                 border-radius: 6px;
-                padding: 10px 14px;
-                font-weight: 600;
+                padding: 8px 14px;
+                font-weight: bold;
             }
-            QPushButton#primaryButton {
-                background: #000000;
-                color: #ffffff;
-                border: 1px solid #000000;
-                min-width: 140px;
+
+            QPushButton:hover {
+                opacity: 0.9;
             }
-            QPushButton#primaryButton:hover { background: #2b2b2b; }
-            QPushButton#cancelButton {
-                background: #f0f0f0;
-                color: #2c2c2c;
-                border: 1px solid #c7c7c7;
-                min-width: 120px;
+
+            QPushButton {
+                background-color: #f5f5f5;
+                color: #333;
+                border: 1px solid #ccc;
             }
-            QPushButton#ghostButton {
-                background: #ffffff;
-                color: #4a4a4a;
-                border: 1px solid #c7c7c7;
-                min-width: 140px;
+
+            QPushButton:last-child {
+                background-color: #C62828;
+                color: white;
+                border: none;
             }
-            QPushButton:hover { opacity: 0.9; }
+
+            QPushButton:last-child:hover {
+                background-color: #B71C1C;
+            }
         """)
-    
+
     def login(self):
-        resp, status = UserController.login(self.email.text(), self.password.text())
-        
+        """
+        Tente une connexion utilisateur.
+        """
+        resp, status = UserController.login(
+            self.email.text(),
+            self.password.text()
+        )
+
         if status == 200:
             self.main_window.current_user = resp
             self.main_window.switch_to('home')
         else:
-            QMessageBox.warning(self, "Erreur", resp.get('error', 'Erreur'))
+            QMessageBox.warning(
+                self, "Erreur",
+                resp.get('error', 'Erreur de connexion')
+            )

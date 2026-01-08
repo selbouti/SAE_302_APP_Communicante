@@ -8,18 +8,31 @@ from controllers.profile_controller import ProfileController
 
 
 class ProfileView(QWidget):
+    """
+    Vue du profil utilisateur.
+
+    Cette vue permet :
+    - d'afficher les informations personnelles de l'utilisateur
+    - de modifier ces informations après activation du mode édition
+    - d'accéder à la gestion de la voiture
+    """
+
     def __init__(self, main_window):
+        """
+        Initialise la vue Profil.
+
+        :param main_window: fenêtre principale de l'application
+        """
         super().__init__()
         self.main_window = main_window
-        self.edit_mode = False
 
-        # -------- Layout principal --------
+        # ================== Layout principal ==================
         layout = QVBoxLayout()
         layout.setContentsMargins(20, 15, 20, 15)
         layout.setSpacing(10)
         layout.setAlignment(Qt.AlignTop)
 
-        # -------- Titre --------
+        # ================== Titre ==================
         title = QLabel("👤 Mon profil")
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet("""
@@ -29,7 +42,7 @@ class ProfileView(QWidget):
         """)
         layout.addWidget(title)
 
-        # -------- Formulaire (COMME VoitureView) --------
+        # ================== Formulaire ==================
         form = QFormLayout()
         form.setSpacing(8)
 
@@ -38,7 +51,10 @@ class ProfileView(QWidget):
         self.email = QLineEdit()
         self.telephone = QLineEdit()
 
-        self.fields = [self.nom, self.prenom, self.email, self.telephone]
+        self.fields = [
+            self.nom, self.prenom,
+            self.email, self.telephone
+        ]
 
         for field in self.fields:
             field.setReadOnly(True)
@@ -60,7 +76,7 @@ class ProfileView(QWidget):
 
         layout.addLayout(form)
 
-        # -------- Boutons --------
+        # ================== Boutons ==================
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(10)
 
@@ -73,26 +89,31 @@ class ProfileView(QWidget):
             background-color:#C62828;
             color:white;
             padding:8px;
+            font-weight:bold;
         """)
 
         self.btn_save.setStyleSheet("""
             background-color:#2E7D32;
             color:white;
             padding:8px;
+            font-weight:bold;
         """)
 
         self.btn_voiture.setStyleSheet("""
             background-color:white;
             border:1px solid #C62828;
             padding:8px;
+            font-weight:bold;
         """)
 
         self.btn_back.setStyleSheet("""
             background-color:white;
             border:1px solid #C62828;
             padding:8px;
+            font-weight:bold;
         """)
 
+        # Mode lecture seule par défaut
         self.btn_save.hide()
 
         btn_layout.addWidget(self.btn_edit)
@@ -105,14 +126,19 @@ class ProfileView(QWidget):
 
         self.setLayout(layout)
 
-        # -------- Signals --------
+        # ================== Connexions ==================
         self.btn_edit.clicked.connect(self.enable_edit)
         self.btn_save.clicked.connect(self.save)
         self.btn_voiture.clicked.connect(self.go_voiture)
         self.btn_back.clicked.connect(self.go_back)
 
-    # -------- Chargement --------
+    # ==================================================
+    # CHARGEMENT DU PROFIL
+    # ==================================================
     def load(self):
+        """
+        Charge les informations du profil depuis le serveur.
+        """
         if not self.main_window.current_user:
             self.main_window.switch_to("login")
             return
@@ -121,9 +147,12 @@ class ProfileView(QWidget):
         response, status = ProfileController.get_profile(user_id)
 
         if status != 200:
-            QMessageBox.critical(self, "Erreur", "Impossible de charger le profil")
+            QMessageBox.critical(
+                self, "Erreur", "Impossible de charger le profil"
+            )
             return
 
+        # Remplissage des champs
         self.nom.setText(response.get("nom", ""))
         self.prenom.setText(response.get("prenom", ""))
         self.email.setText(response.get("email", ""))
@@ -131,19 +160,34 @@ class ProfileView(QWidget):
 
         self.set_editable(False)
 
-    # -------- Mode édition --------
+    # ==================================================
+    # MODE ÉDITION
+    # ==================================================
     def enable_edit(self):
+        """
+        Active le mode édition.
+        """
         self.set_editable(True)
 
     def set_editable(self, editable):
+        """
+        Active ou désactive l'édition des champs.
+
+        :param editable: True pour édition, False sinon
+        """
         for field in self.fields:
             field.setReadOnly(not editable)
 
         self.btn_edit.setVisible(not editable)
         self.btn_save.setVisible(editable)
 
-    # -------- Sauvegarde --------
+    # ==================================================
+    # SAUVEGARDE
+    # ==================================================
     def save(self):
+        """
+        Enregistre les modifications du profil.
+        """
         user_id = self.main_window.current_user["id"]
 
         data = {
@@ -156,13 +200,26 @@ class ProfileView(QWidget):
         response, status = ProfileController.update_profile(user_id, data)
 
         if status == 200:
-            QMessageBox.information(self, "Succès", "Profil mis à jour ✔")
+            QMessageBox.information(
+                self, "Succès", "Profil mis à jour ✔"
+            )
             self.set_editable(False)
         else:
-            QMessageBox.critical(self, "Erreur", "Erreur lors de la mise à jour")
+            QMessageBox.critical(
+                self, "Erreur", "Erreur lors de la mise à jour"
+            )
 
+    # ==================================================
+    # NAVIGATION
+    # ==================================================
     def go_voiture(self):
+        """
+        Accède à la vue de gestion de la voiture.
+        """
         self.main_window.switch_to("voiture")
 
     def go_back(self):
+        """
+        Retour à l'accueil.
+        """
         self.main_window.switch_to("home")

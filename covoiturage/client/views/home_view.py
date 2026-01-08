@@ -1,113 +1,156 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame
+from PyQt5.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout,
+    QLabel, QPushButton, QFrame
+)
+from PyQt5.QtCore import Qt
+
 
 class HomeView(QWidget):
+    """
+    Vue d'accueil de l'application.
+    """
+
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
         self.setup_ui()
-    
+
     def setup_ui(self):
         layout = QVBoxLayout()
-        layout.setContentsMargins(24, 24, 24, 24)
-        layout.setSpacing(20)
+        layout.setContentsMargins(32, 32, 32, 32)
+        layout.setSpacing(24)
 
+        # ================= CARD =================
         container = QFrame()
         container.setObjectName("homeCard")
         card_layout = QVBoxLayout(container)
         card_layout.setContentsMargins(24, 24, 24, 24)
         card_layout.setSpacing(16)
 
-        title = QLabel("Application de covoiturage")
+        # ================= TITRE =================
+        title = QLabel("🚗 Covoiturage Daily")
+        title.setAlignment(Qt.AlignCenter)
         title.setObjectName("titleLabel")
         card_layout.addWidget(title)
 
+        # ================= BIENVENUE =================
         user = self.main_window.current_user
         welcome = QLabel()
+        welcome.setAlignment(Qt.AlignCenter)
         welcome.setObjectName("welcomeLabel")
+
         if user:
-            welcome.setText(f"Bienvenue {user.get('prenom', '')} {user.get('nom', '')}")
+            welcome.setText(
+                f"Bienvenue {user.get('prenom', '')} {user.get('nom', '')}"
+            )
         else:
             welcome.setText("Bienvenue")
+
         card_layout.addWidget(welcome)
 
         subtitle = QLabel("Accédez à vos fonctionnalités principales")
+        subtitle.setAlignment(Qt.AlignCenter)
         subtitle.setObjectName("subtitleLabel")
         card_layout.addWidget(subtitle)
 
+        # ================= BOUTONS =================
         btns = QHBoxLayout()
         btns.setSpacing(14)
-        
+
         btn_profile = QPushButton("Mon profil")
-        btn_profile.clicked.connect(lambda: self.main_window.switch_to('profile'))
+        btn_profile.clicked.connect(
+            lambda: self.main_window.switch_to('profile')
+        )
         btns.addWidget(btn_profile)
 
-        btn1 = QPushButton("Voir matching")
-        btn1.clicked.connect(lambda: self.main_window.switch_to('matching'))
-        btns.addWidget(btn1)
-        
-        btn2 = QPushButton("Mes trajets")
-        btn2.clicked.connect(lambda: self.main_window.switch_to('mes_trajets'))
-        btns.addWidget(btn2)
-        
-        btn3 = QPushButton("Mes réservations")
-        btn3.clicked.connect(lambda: self.main_window.switch_to('mes_reservations'))
-        btns.addWidget(btn3)
-        
+        btn_matching = QPushButton("Matching")
+        btn_matching.clicked.connect(
+            lambda: self.main_window.switch_to('matching')
+        )
+        btns.addWidget(btn_matching)
+
+        btn_trajets = QPushButton("Mes trajets")
+        btn_trajets.clicked.connect(
+            lambda: self.main_window.switch_to('mes_trajets')
+        )
+        btns.addWidget(btn_trajets)
+
+        btn_reservations = QPushButton("Mes réservations")
+        btn_reservations.clicked.connect(
+            lambda: self.main_window.switch_to('mes_reservations')
+        )
+        btns.addWidget(btn_reservations)
+
         card_layout.addLayout(btns)
 
+        # ================= LOGOUT =================
         logout = QPushButton("Déconnexion")
         logout.setObjectName("logoutButton")
-        logout.clicked.connect(lambda: self.main_window.switch_to('login'))
+        logout.clicked.connect(
+            lambda: self.main_window.switch_to('login')
+        )
         card_layout.addWidget(logout)
 
         layout.addWidget(container)
         layout.addStretch()
         self.setLayout(layout)
 
+        # ================= STYLE =================
         self.setStyleSheet("""
             QWidget {
-                background: #ffffff;
+                background-color: #ffffff;
+                font-family: "Segoe UI", Arial, sans-serif;
+                font-size: 14px;
                 color: #1e1e1e;
-                font-family: "Open Sans", "Segoe UI", Arial, sans-serif;
-                font-size: 14px;
             }
+
             QFrame#homeCard {
-                border: 2px solid #4a4a4a;
-                border-radius: 8px;
-                background: #fdfdfd;
+                border: 2px solid #C62828;
+                border-radius: 10px;
+                background-color: #fdfdfd;
             }
+
             QLabel#titleLabel {
-                color: #7b0000;
-                font-size: 24px;
-                font-weight: 800;
-                text-decoration: underline;
-                padding-bottom: 6px;
+                color: #C62828;
+                font-size: 26px;
+                font-weight: bold;
+                padding-bottom: 8px;
             }
+
             QLabel#welcomeLabel {
-                color: #4a4a4a;
+                color: #444;
                 font-size: 16px;
-                padding: 2px 0;
+                font-weight: 600;
             }
+
             QLabel#subtitleLabel {
-                color: #7a7a7a;
+                color: #777;
                 font-size: 14px;
-                padding: 0 0 12px 0;
+                padding-bottom: 16px;
             }
+
             QPushButton {
-                background-color: #a30000;
-                color: #ffffff;
-                border: 1px solid #7b0000;
+                background-color: #C62828;
+                color: white;
+                border: none;
                 border-radius: 6px;
                 padding: 10px 14px;
-                font-weight: 600;
-                min-width: 150px;
-            }
-            QPushButton:hover { background-color: #b30000; }
-            QPushButton:pressed { background-color: #7b0000; }
-            QPushButton#logoutButton {
-                background-color: #ffffff;
-                color: #a30000;
-                border: 1px solid #7b0000;
+                font-weight: bold;
                 min-width: 140px;
+            }
+
+            QPushButton:hover {
+                background-color: #B71C1C;
+            }
+
+            QPushButton#logoutButton {
+                background-color: white;
+                color: #C62828;
+                border: 1px solid #C62828;
+                margin-top: 16px;
+            }
+
+            QPushButton#logoutButton:hover {
+                background-color: #f8f8f8;
             }
         """)

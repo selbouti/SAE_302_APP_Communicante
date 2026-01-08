@@ -9,30 +9,64 @@ from controllers.matching_controller import MatchingController
 
 
 class MatchingView(QWidget):
+    """
+    Vue de matching des trajets compatibles.
+
+    Cette vue permet à l'utilisateur :
+    - de sélectionner un de ses trajets
+    - d'afficher les trajets compatibles
+    - de réserver une place ou inviter un passager
+    """
+
     def __init__(self, main_window):
+        """
+        Initialise la vue Matching.
+
+        :param main_window: fenêtre principale de l'application
+        """
         super().__init__()
         self.main_window = main_window
         self.controller = None
         self.setup_ui()
 
-    # ---------------- UI ---------------- #
-
+    # ==================================================
+    # INTERFACE UTILISATEUR
+    # ==================================================
     def setup_ui(self):
+        """
+        Construit l'interface graphique.
+        """
         layout = QVBoxLayout(self)
+        layout.setAlignment(Qt.AlignTop)
+        layout.setSpacing(12)
 
-        title = QLabel("Les trajets disponibles")
+        title = QLabel("🚗 Trajets compatibles")
+        title.setAlignment(Qt.AlignCenter)
+        title.setStyleSheet("""
+            font-size:20px;
+            font-weight:bold;
+            color:#C62828;
+        """)
         layout.addWidget(title)
 
+        # Sélecteur de trajet
         select_layout = QHBoxLayout()
-        select_layout.addWidget(QLabel("Choisir mon trajet :"))
+        label_select = QLabel("Choisir mon trajet :")
+        label_select.setStyleSheet("font-weight:bold;")
+
         self.trajet_combo = QComboBox()
         self.trajet_combo.currentIndexChanged.connect(self.charger)
+
+        select_layout.addWidget(label_select)
         select_layout.addWidget(self.trajet_combo)
         layout.addLayout(select_layout)
 
         self.info_label = QLabel("")
+        self.info_label.setAlignment(Qt.AlignCenter)
+        self.info_label.setStyleSheet("color:#444;")
         layout.addWidget(self.info_label)
 
+        # Tableau des trajets
         self.table = QTableWidget(0, 7)
         self.table.setHorizontalHeaderLabels([
             "Conducteur",
@@ -43,22 +77,53 @@ class MatchingView(QWidget):
             "Places",
             "Action"
         ])
+        self.table.setStyleSheet("""
+            QTableWidget {
+                border: 1px solid #C62828;
+                gridline-color: #e0e0e0;
+            }
+            QHeaderView::section {
+                background-color: #f5f5f5;
+                color: #C62828;
+                font-weight: bold;
+                padding: 6px;
+            }
+        """)
         layout.addWidget(self.table)
 
+        # Boutons
         btn_layout = QHBoxLayout()
-        refresh = QPushButton("Rafraîchir")
+
+        refresh = QPushButton("🔄 Rafraîchir")
         refresh.clicked.connect(self.charger)
-        btn_layout.addWidget(refresh)
 
-        back = QPushButton("Retour")
+        back = QPushButton("⬅ Retour")
         back.clicked.connect(lambda: self.main_window.switch_to("home"))
-        btn_layout.addWidget(back)
 
+        for btn in (refresh, back):
+            btn.setStyleSheet("""
+                QPushButton {
+                    background-color:#C62828;
+                    color:white;
+                    padding:8px;
+                    border-radius:4px;
+                }
+                QPushButton:hover {
+                    background-color:#B71C1C;
+                }
+            """)
+
+        btn_layout.addWidget(refresh)
+        btn_layout.addWidget(back)
         layout.addLayout(btn_layout)
 
-    # ---------------- LIFE CYCLE ---------------- #
-
+    # ==================================================
+    # CYCLE DE VIE
+    # ==================================================
     def showEvent(self, event):
+        """
+        Appelé automatiquement lorsque la vue est affichée.
+        """
         super().showEvent(event)
 
         if not self.main_window.current_user:
@@ -72,9 +137,13 @@ class MatchingView(QWidget):
         self.charger_trajets_perso()
         self.charger()
 
-    # ---------------- DATA ---------------- #
-
+    # ==================================================
+    # DONNÉES
+    # ==================================================
     def charger_trajets_perso(self):
+        """
+        Charge les trajets personnels de l'utilisateur.
+        """
         self.trajet_combo.clear()
         resp, status = self.controller.charger_trajets_perso()
 
@@ -87,6 +156,9 @@ class MatchingView(QWidget):
                 self.trajet_combo.addItem(label, t['id'])
 
     def charger(self):
+        """
+        Charge les trajets compatibles.
+        """
         self.table.setRowCount(0)
         trajet_id = self.trajet_combo.currentData()
 
@@ -101,9 +173,15 @@ class MatchingView(QWidget):
 
         self.afficher_trajets(data)
 
-    # ---------------- DISPLAY ---------------- #
-
+    # ==================================================
+    # AFFICHAGE
+    # ==================================================
     def afficher_trajets(self, data):
+        """
+        Affiche les trajets compatibles dans le tableau.
+
+        :param data: dictionnaire retourné par le serveur
+        """
         mon = data["mon_trajet"]
         trajets = data["trajets_compatibles"]
         mode = data["mode_recherche"]
@@ -138,15 +216,31 @@ class MatchingView(QWidget):
             else:
                 btn = QPushButton("Inviter")
                 btn.clicked.connect(
-                    lambda _, pid=trajet.utilisateur_id, tid=self.trajet_combo.currentData():
+                    lambda _, pid=trajet.utilisateur_id,
+                    tid=self.trajet_combo.currentData():
                     self.inviter(pid, tid)
                 )
 
+            btn.setStyleSheet("""
+                QPushButton {
+                    background-color:#C62828;
+                    color:white;
+                    padding:5px;
+                }
+                QPushButton:hover {
+                    background-color:#B71C1C;
+                }
+            """)
+
             self.table.setCellWidget(row, 6, btn)
 
-    # ---------------- ACTIONS ---------------- #
-
+    # ==================================================
+    # ACTIONS
+    # ==================================================
     def reserver(self, trajet_id):
+        """
+        Effectue une réservation.
+        """
         resp, status = self.controller.reserver(trajet_id)
         if status == 201:
             QMessageBox.information(
@@ -159,6 +253,9 @@ class MatchingView(QWidget):
             )
 
     def inviter(self, passager_id, trajet_id):
+        """
+        Envoie une invitation à un utilisateur.
+        """
         resp, status = self.controller.inviter(passager_id, trajet_id)
         if status == 201:
             QMessageBox.information(
