@@ -5,7 +5,7 @@ class ProfileModel:
     @staticmethod
     def get_profile(utilisateur_id):
         user = Database.execute_one("""
-            SELECT id, nom, prenom, email, telephone
+            SELECT  nom, prenom, email, telephone
             FROM utilisateurs
             WHERE id = ?
         """, (utilisateur_id,))
@@ -13,21 +13,15 @@ class ProfileModel:
         if not user:
             return {"success": False, "message": "Utilisateur introuvable"}
 
-        voiture = Database.execute_one("""
-            SELECT marque, modele, couleur, plaque, places_totales
-            FROM voitures
-            WHERE utilisateur_id = ?
-        """, (utilisateur_id,))
-
+        
         return {
             "success": True,
             "profile": {  # <-- clé profile pour le client
-                "id": user["id"],
                 "nom": user["nom"],
                 "prenom": user["prenom"],
                 "email": user["email"],
-                "telephone": user["telephone"],
-                "voiture": dict(voiture) if voiture else None
+                "telephone": user["telephone"]
+                
             }
         }
 

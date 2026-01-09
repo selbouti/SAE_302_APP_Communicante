@@ -50,7 +50,6 @@ class VoitureView(QWidget):
         self.chevaux = QLineEdit()
         self.places = QLineEdit()
         self.co2 = QLineEdit()
-        self.plaque = QLineEdit()
 
         self.motorisation = QComboBox()
         self.motorisation.addItems(
@@ -61,7 +60,7 @@ class VoitureView(QWidget):
         self.fields = [
             self.marque, self.modele,
             self.chevaux, self.places,
-            self.co2, self.plaque
+            self.co2
         ]
 
         for field in self.fields:
@@ -74,7 +73,6 @@ class VoitureView(QWidget):
         form.addRow("Chevaux fiscaux :", self.chevaux)
         form.addRow("Nombre de places :", self.places)
         form.addRow("CO₂ (g/km) :", self.co2)
-        form.addRow("Plaque :", self.plaque)
         form.addRow("Motorisation :", self.motorisation)
 
         # ================== Boutons ==================
@@ -146,7 +144,6 @@ class VoitureView(QWidget):
                 "places_max": int(self.places.text()),
                 "taux_co2": int(self.co2.text()),
                 "motorisation": self.motorisation.currentText(),
-                "plaque": self.plaque.text()
             }
 
             user_id = self.main_window.current_user["id"]
@@ -227,12 +224,11 @@ class VoitureView(QWidget):
             self.marque.setText(v.get("marque", ""))
             self.modele.setText(v.get("modele", ""))
             self.chevaux.setText(str(v.get("chevaux_fiscaux", "")))
-            self.places.setText(str(v.get("places_totales", "")))
+            self.places.setText(str(v.get("places_max", "")))
             self.co2.setText(str(v.get("taux_co2", "")))
             self.motorisation.setCurrentText(
                 v.get("motorisation", "thermique")
             )
-            self.plaque.setText(v.get("plaque", ""))
         else:
             self.clear_fields()
 

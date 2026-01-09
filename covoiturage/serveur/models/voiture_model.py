@@ -1,35 +1,42 @@
 from core.database import Database
 
 class VoitureModel:
+
     @staticmethod
-    def create(utilisateur_id, marque, modele, couleur, plaque, places_totales):
-        query = '''INSERT INTO voitures (utilisateur_id, marque, modele, couleur, plaque, places_totales)
-                   VALUES (?, ?, ?, ?, ?, ?)'''
-        voiture_id = Database.insert(query, (utilisateur_id, marque, modele, couleur, plaque, places_totales))
-        return voiture_id
-    
+    def create(utilisateur_id, data):
+        query = """
+            INSERT INTO voitures (
+                utilisateur_id,
+                marque,
+                modele,
+                chevaux_fiscaux,
+                taux_co2,
+                places_totales,
+                motorisation
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        """
+        return Database.insert(
+            query,
+            (
+                utilisateur_id,
+                data["marque"],
+                data["modele"],
+                data["chevaux_fiscaux"],
+                data["taux_co2"],
+                data["places_max"],
+                data["motorisation"]
+            )
+        )
+
     @staticmethod
     def get_by_user(user_id):
-        query = 'SELECT * FROM voitures WHERE utilisateur_id = ?'
-        voitures = Database.execute(query, (user_id,))
-        return [dict(v) for v in voitures]
-    
-    @staticmethod
-    def get_by_id(voiture_id):
-        query = 'SELECT * FROM voitures WHERE id = ?'
-        voiture = Database.execute_one(query, (voiture_id,))
-        return dict(voiture) if voiture else None
-    
-
-
-
-
-
+        query = "SELECT * FROM voitures WHERE utilisateur_id = ?"
+        rows = Database.execute(query, (user_id,))
+        return [dict(r) for r in rows]
 
     @staticmethod
-    def delete_by_user(user_id: int):
-        conn = get_db()
-        cur = conn.cursor()
-        cur.execute("DELETE FROM voitures WHERE utilisateur_id = ?", (user_id,))
-        conn.commit()
-        conn.close()
+    def delete_by_user(user_id):
+        Database.execute(
+            "DELETE FROM voitures WHERE utilisateur_id = ?",
+            (user_id,)
+        )

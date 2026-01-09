@@ -113,10 +113,10 @@ class ProfileView(QWidget):
             return
 
         # Remplissage des champs
-        self.nom.setText(response.get("nom", ""))
-        self.prenom.setText(response.get("prenom", ""))
-        self.email.setText(response.get("email", ""))
-        self.telephone.setText(response.get("telephone", ""))
+        self.nom.setText(response["user"].get("nom", ""))
+        self.prenom.setText(response["user"].get("prenom", ""))
+        self.email.setText(response["user"].get("email", ""))
+        self.telephone.setText(response["user"].get("telephone", ""))
 
         self.set_editable(False)
 

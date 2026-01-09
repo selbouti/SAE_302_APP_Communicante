@@ -79,6 +79,7 @@ def migrate_db(conn):
         ("voiture_id", "INTEGER", None),
         ("jour_semaine", "TEXT", None),
         ("heure_depart", "TEXT", None),
+        ("heure_retour", "TEXT", None),
         ("mode", "TEXT", '"conducteur"')
     ]:
         if col not in columns:

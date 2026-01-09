@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS trajets (
     date_depart TEXT,
     jour_semaine TEXT,
     heure_depart TEXT,
+    heure_retour TEXT,
     prix_par_place REAL,
     mode TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -108,7 +109,6 @@ cursor.execute("SELECT id FROM utilisateurs ORDER BY id")
 user_ids = [row[0] for row in cursor.fetchall()]
 
 # --- Voitures (1 par conducteur) ---
-# Nouveau format SAE : marque, modele, chevaux_fiscaux, motorisation, taux_co2, places_max
 voitures = [
     (user_ids[0], "Peugeot", "3008", 7, "Essence", 140.0, 4),  # Jean
     (user_ids[1], "Renault", "Clio", 5, "Diesel", 110.0, 5),   # Sophie
@@ -124,22 +124,22 @@ cursor.executemany("""
 cursor.execute("SELECT id FROM voitures ORDER BY id")
 voiture_ids = [row[0] for row in cursor.fetchall()]
 
-# --- Trajets ---
+# --- Trajets (avec heure_retour) ---
 trajets = [
     # Conducteurs
-    (user_ids[0], voiture_ids[0], "Poitiers", "Paris", "2024-01-22", "lundi", "08:00", 15.0, "conducteur"), # Jean
-    (user_ids[1], voiture_ids[1], "Poitiers", "Paris", "2024-01-23", "mardi", "09:00", 15.0, "conducteur"), # Sophie
-    (user_ids[4], voiture_ids[2], "Poitiers", "Lyon", "2024-01-24", "mercredi", "10:00", 10.0, "conducteur"), # Luc
-    (user_ids[5], voiture_ids[3], "Poitiers", "Lyon", "2024-01-25", "jeudi", "07:30", 10.0, "conducteur"), # Alice
+    (user_ids[0], voiture_ids[0], "Poitiers", "Paris", "2024-01-22", "lundi", "08:00", "12:00", 15.0, "conducteur"),
+    (user_ids[1], voiture_ids[1], "Poitiers", "Paris", "2024-01-23", "mardi", "09:00", "13:00", 15.0, "conducteur"),
+    (user_ids[4], voiture_ids[2], "Poitiers", "Lyon", "2024-01-24", "mercredi", "10:00", "14:00", 10.0, "conducteur"),
+    (user_ids[5], voiture_ids[3], "Poitiers", "Lyon", "2024-01-25", "jeudi", "07:30", "11:30", 10.0, "conducteur"),
     # Passagers
-    (user_ids[2], None, "Poitiers", "Paris", "2024-01-22", "lundi", "08:00", 0.0, "passager"), # Pierre
-    (user_ids[3], None, "Poitiers", "Paris", "2024-01-23", "mardi", "09:00", 0.0, "passager"), # Marie
-    (user_ids[6], None, "Poitiers", "Lyon", "2024-01-24", "mercredi", "10:00", 0.0, "passager"), # Bob
+    (user_ids[2], None, "Poitiers", "Paris", "2024-01-22", "lundi", "08:00", "12:00", 0.0, "passager"),
+    (user_ids[3], None, "Poitiers", "Paris", "2024-01-23", "mardi", "09:00", "13:00", 0.0, "passager"),
+    (user_ids[6], None, "Poitiers", "Lyon", "2024-01-24", "mercredi", "10:00", "14:00", 0.0, "passager"),
 ]
 
 cursor.executemany("""
-    INSERT INTO trajets (utilisateur_id, voiture_id, depart, arrivee, date_depart, jour_semaine, heure_depart, prix_par_place, mode)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO trajets (utilisateur_id, voiture_id, depart, arrivee, date_depart, jour_semaine, heure_depart, heure_retour, prix_par_place, mode)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 """, trajets)
 
 cursor.execute("SELECT id FROM trajets ORDER BY id")
@@ -170,4 +170,5 @@ cursor.executemany("""
 
 conn.commit()
 conn.close()
-print("✅ Jeu de données SAE prêt avec voitures conformes !")
+
+print("✅ Jeu de données SAE prêt avec voitures et trajets complets (heure_retour incluse) !")

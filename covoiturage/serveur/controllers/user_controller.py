@@ -33,7 +33,7 @@ def register():
     # ✅ Enregistrer la voiture si fournie
     if voiture:
         try:
-            VoitureModel.upsert(user_id, voiture)
+            VoitureModel.create(user_id, voiture)
         except Exception as e:
             print("Erreur voiture register:", e)
 
@@ -107,6 +107,8 @@ def upload_icalendar(user_id):
 
         for e in events:
             dtstart = e.get("dtstart")
+            dtend = e.get("dtend")  # <-- ajouter cette ligne
+
             if not dtstart:
                 continue
 
@@ -125,9 +127,11 @@ def upload_icalendar(user_id):
                 date_depart=dtstart.strftime("%Y-%m-%d"),
                 jour_semaine=dtstart.strftime("%A"),
                 heure_depart=dtstart.strftime("%H:%M"),
+                heure_retour=(dtend.strftime("%H:%M") if dtend else dtstart.strftime("%H:%M")),
                 prix_par_place=5.0,
                 mode=mode
             )
+
 
             if trajet_id:
                 created += 1
