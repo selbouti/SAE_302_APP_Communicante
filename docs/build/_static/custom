@@ -1,0 +1,24 @@
+/* Couleur principale */
+h1, h2, h3 {
+    color: #a30000;
+}
+
+/* Liens */
+a {
+    color: #7b0000;
+}
+
+/* Sidebar (ReadTheDocs) */
+.wy-side-nav-search {
+    background-color: #a30000;
+}
+
+.wy-nav-side {
+    background: #7b0000;
+}
+
+/* Code blocks */
+code, pre {
+    background-color: #f5f5f5;
+    border-left: 4px solid #a30000;
+}
