@@ -1,0 +1,33 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Covoiturage App//FR
+CALSCALE:GREGORIAN
+
+BEGIN:VEVENT
+UID:trajet1@example.com
+SUMMARY:Trajet domicile -> travail
+DTSTART:20260110T080000
+DTEND:20260110T083000
+LOCATION:Paris
+DESCRIPTION:Trajet quotidien domicile vers travail
+END:VEVENT
+
+BEGIN:VEVENT
+UID:trajet2@example.com
+SUMMARY:Trajet travail -> domicile
+DTSTART:20260110T170000
+DTEND:20260110T173000
+LOCATION:Paris
+DESCRIPTION:Trajet retour travail vers domicile
+END:VEVENT
+
+BEGIN:VEVENT
+UID:trajet3@example.com
+SUMMARY:Trajet weekend
+DTSTART:20260111T100000
+DTEND:20260111T110000
+LOCATION:Lyon
+DESCRIPTION:Trajet weekend vers la famille
+END:VEVENT
+
+END:VCALENDAR
