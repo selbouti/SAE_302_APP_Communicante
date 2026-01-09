@@ -20,3 +20,16 @@ class VoitureModel:
         voiture = Database.execute_one(query, (voiture_id,))
         return dict(voiture) if voiture else None
     
+
+
+
+
+
+
+    @staticmethod
+    def delete_by_user(user_id: int):
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM voitures WHERE utilisateur_id = ?", (user_id,))
+        conn.commit()
+        conn.close()

@@ -43,6 +43,13 @@ class TrajetModel:
                    WHERE t.utilisateur_id = ?'''
         trajets = Database.execute(query, (user_id,))
         return [dict(t) for t in trajets]
+
+
+    @staticmethod
+    def delete_by_user(user_id):
+  	 Database.execute("DELETE FROM trajets WHERE utilisateur_id = ?", (user_id,))
+
+
     
     @staticmethod
     def get_first_trajet(user_id):
