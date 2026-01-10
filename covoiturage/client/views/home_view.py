@@ -77,6 +77,7 @@ class HomeView(QWidget):
         btns.addWidget(btn_trajets)
 
         btn_reservations = QPushButton("Mes réservations")
+        
         btn_reservations.clicked.connect(
             lambda: self.main_window.switch_to('mes_reservations')
         )

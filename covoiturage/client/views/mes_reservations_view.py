@@ -9,7 +9,8 @@ class ReservationsInvitationsView(QWidget):
         super().__init__()
         self.main_window = main_window
         self.setup_ui()
-
+        
+    def load(self):
         self.charger_reservations_recues()
         self.charger_reservations_faites()
         self.charger_invitations_recues()
