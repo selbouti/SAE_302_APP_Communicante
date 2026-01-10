@@ -30,6 +30,15 @@ class ReservationModel:
     
     @staticmethod
     def get_by_trajet(trajet_id):
+        """
+        Retrieve reservations for a specific trip, excluding those with the status 'refusee'.
+
+        Args:
+            trajet_id (int): The ID of the trip.
+
+        Returns:
+            list[dict]: A list of dictionaries containing reservation details.
+        """
         query = '''SELECT 
                        r.id, r.passager_id, r.places_reservees, r.statut, r.created_at,
                        t.id as trajet_id, t.depart, t.arrivee, t.date_depart, t.heure_depart, t.prix_par_place,
@@ -37,7 +46,8 @@ class ReservationModel:
                    FROM reservations r
                    JOIN trajets t ON r.trajet_id = t.id
                    JOIN utilisateurs u ON r.passager_id = u.id
-                   WHERE r.trajet_id = ?'''
+                   WHERE r.trajet_id = ? AND r.statut != 'refusee'
+                '''
         res = Database.execute(query, (trajet_id,))
         return [dict(r) for r in res]
     

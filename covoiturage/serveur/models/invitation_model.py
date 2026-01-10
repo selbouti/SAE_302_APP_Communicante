@@ -1,8 +1,23 @@
 from core.database import Database
 
 class InvitationModel:
+    """
+    A model class for managing invitations in the database.
+    Provides methods to create, retrieve, and update invitations.
+    """
+
     @staticmethod
     def create(trajet_id, passager_id):
+        """
+        Create a new invitation for a passenger to join a trip.
+
+        Args:
+            trajet_id (int): The ID of the trip.
+            passager_id (int): The ID of the passenger.
+
+        Returns:
+            int: The ID of the newly created invitation.
+        """
         query = '''INSERT INTO invitations (trajet_id, passager_id, statut)
                    VALUES (?, ?, 'en_attente')'''
         inv_id = Database.insert(query, (trajet_id, passager_id))
@@ -10,6 +25,15 @@ class InvitationModel:
     
     @staticmethod
     def get_invitations_received(passager_id):
+        """
+        Retrieve all invitations received by a passenger.
+
+        Args:
+            passager_id (int): The ID of the passenger.
+
+        Returns:
+            list[dict]: A list of dictionaries containing invitation details.
+        """
         query = '''SELECT i.id, i.trajet_id, i.statut, i.created_at,
                    t.depart, t.arrivee, t.date_depart, t.heure_depart, t.prix_par_place,
                    u.nom, u.prenom, u.email, u.telephone
@@ -22,7 +46,15 @@ class InvitationModel:
 
     @staticmethod
     def get_invitations_sent(conducteur_id):
-        """Invitations que j'ai envoyées (je suis conducteur)"""
+        """
+        Retrieve all invitations sent by a driver.
+
+        Args:
+            conducteur_id (int): The ID of the driver.
+
+        Returns:
+            list[dict]: A list of dictionaries containing invitation details.
+        """
         query = '''SELECT i.id, i.trajet_id, i.statut, i.created_at,
                    t.depart, t.arrivee, t.date_depart, t.heure_depart,
                    u.nom, u.prenom, u.email, u.telephone
@@ -36,8 +68,20 @@ class InvitationModel:
     
     @staticmethod
     def accepter(invitation_id):
+        """
+        Accept an invitation by updating its status to 'acceptee'.
+
+        Args:
+            invitation_id (int): The ID of the invitation to accept.
+        """
         Database.execute('UPDATE invitations SET statut = ? WHERE id = ?', ('acceptee', invitation_id))
     
     @staticmethod
     def refuser(invitation_id):
+        """
+        Decline an invitation by updating its status to 'refusee'.
+
+        Args:
+            invitation_id (int): The ID of the invitation to decline.
+        """
         Database.execute('UPDATE invitations SET statut = ? WHERE id = ?', ('refusee', invitation_id))

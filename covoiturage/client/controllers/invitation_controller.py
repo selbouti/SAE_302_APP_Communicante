@@ -2,11 +2,22 @@ from services.api_service import APIService
 from models.invitation import Invitation
 
 class InvitationController:
-    """Contrôle la logique des invitations côté client"""
-    
+    """
+    Manages the logic for invitations on the client side.
+    """
+
     @staticmethod
     def creer_invitation(trajet_id, passager_id):
-        """Créer une invitation"""
+        """
+        Create an invitation for a passenger to join a trip.
+
+        Args:
+            trajet_id (int): The ID of the trip.
+            passager_id (int): The ID of the passenger.
+
+        Returns:
+            tuple: The response from the API and the HTTP status code.
+        """
         data = {
             'trajet_id': trajet_id,
             'passager_id': passager_id
@@ -15,7 +26,16 @@ class InvitationController:
     
     @staticmethod
     def get_invitations_recues(user_id):
-        """Récupérer les invitations reçues (mode passager)"""
+        """
+        Retrieve invitations received by a user (passenger mode).
+
+        Args:
+            user_id (int): The ID of the user.
+
+        Returns:
+            tuple: A list of Invitation objects and None if successful, 
+                   or None and an error message if an error occurs.
+        """
         resp, status = APIService.get(f'invitations/received/{user_id}')
         
         if status == 200:
@@ -27,11 +47,20 @@ class InvitationController:
                 for i in resp
             ]
             return invitations, None
-        return None, f"Erreur {status}"
+        return None, f"Error {status}"
     
     @staticmethod
     def get_invitations_envoyees(user_id):
-        """Récupérer les invitations envoyées (mode conducteur)"""
+        """
+        Retrieve invitations sent by a user (driver mode).
+
+        Args:
+            user_id (int): The ID of the user.
+
+        Returns:
+            tuple: A list of Invitation objects and None if successful, 
+                   or None and an error message if an error occurs.
+        """
         resp, status = APIService.get(f'invitations/sent/{user_id}')
         
         if status == 200:
@@ -43,22 +72,40 @@ class InvitationController:
                 for i in resp
             ]
             return invitations, None
-        return None, f"Erreur {status}"
+        return None, f"Error {status}"
     
     @staticmethod
     def accepter_invitation(invitation_id):
-        """Accepter une invitation"""
+        """
+        Accept an invitation.
+
+        Args:
+            invitation_id (int): The ID of the invitation.
+
+        Returns:
+            tuple: True and a success message if successful, 
+                   or False and an error message if an error occurs.
+        """
         resp, status = APIService.put(f'invitations/{invitation_id}/accepter')
         
         if status == 200:
-            return True, "Invitation acceptée"
-        return False, f"Erreur {status}"
+            return True, "Invitation accepted"
+        return False, f"Error {status}"
     
     @staticmethod
     def refuser_invitation(invitation_id):
-        """Refuser une invitation"""
+        """
+        Decline an invitation.
+
+        Args:
+            invitation_id (int): The ID of the invitation.
+
+        Returns:
+            tuple: True and a success message if successful, 
+                   or False and an error message if an error occurs.
+        """
         resp, status = APIService.put(f'invitations/{invitation_id}/refuser')
         
         if status == 200:
-            return True, "Invitation refusée"
-        return False, f"Erreur {status}"
+            return True, "Invitation declined"
+        return False, f"Error {status}"
