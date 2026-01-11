@@ -10,15 +10,10 @@
 import os
 import sys
 
-# Chemin absolu vers la racine du projet
-PROJECT_ROOT = os.path.abspath(os.path.join(__file__, "../../.."))
+sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, os.path.abspath('../../client'))
+sys.path.insert(0, os.path.abspath('../../serveur'))
 
-# Ajout explicite des chemins
-sys.path.insert(0, PROJECT_ROOT)
-sys.path.insert(0, os.path.join(PROJECT_ROOT, "server"))
-sys.path.insert(0, os.path.join(PROJECT_ROOT, "client"))
-
-print("SPHINX SYS.PATH =", sys.path)
 
 
 project = 'SAE_302_APP_Communicante'

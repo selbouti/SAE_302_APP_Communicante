@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="french" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Application graphique de co-voiturage &mdash; Documentation SAE_302_APP_Communicante </title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Recherche" href="../search.html" />
+    <link rel="next" title="Application Flask – Serveur Covoiturage" href="../serveur/app.html" />
+    <link rel="prev" title="Architecture" href="../architecture.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SAE_302_APP_Communicante
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Rechercher docs" aria-label="Rechercher docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Présentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Presentation.html">Présentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Application graphique de co-voiturage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cadre-et-objectif-general">Cadre et objectif général</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#environnement-de-developpement-et-depot-git">Environnement de développement et dépôt GIT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#langages-de-scripting-programmation">Langages de scripting/programmation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#arborescence-du-projet">Arborescence du projet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tests-unitaires">Tests unitaires</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Serveur</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/app.html">Application Flask – Serveur Covoiturage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/config.html">Configuration de l’application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/controllers/auth_controller.html">Contrôleur d’authentification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/controllers/user_controller.html">User Controller API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/controllers/profile_controller_api.html">Profile Controller API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/controllers/voiture_controller.html">Contrôleur API Voiture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/controllers/trajet_controller.html">Trajet Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/controllers/matching_controller.html">Matching Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/controllers/reservation_controller.html">Contrôleur des réservations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/controllers/invitation_controller.html">Invitation Controller</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modèles Serveur</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/models/user_model.html">UserModel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/models/profile_model.html">Modèle Profil</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/models/voiture_model.html">VoitureModel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/models/trajet_model.html">Modèle Trajet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/models/reservation_model.html">Modèle Réservation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/models/invitation_model.html">Modèle Invitation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/models/disponibilite_model.html">DisponibiliteModel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/models/edt_model.html">Gestion des emplois du temps (EDT)</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Services Serveur</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/services/icalendar_parser.html">ICalendarParser</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Accès Base de Données</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../serveur/core/database.html">Accès à la base de données</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Client PyQt5</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../client/main.html">Point d’entrée de l’application cliente</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/controllers/user_controller.html">Contrôleur utilisateur</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/controllers/profile_controller.html">Contrôleur Profil</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/controllers/voiture_controller.html">Contrôleur voiture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/controllers/trajet_controller.html">Contrôleur des trajets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/controllers/matching_controller.html">MatchingController</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/controllers/reservation_controller.html">Contrôleur des réservations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/controllers/invitation_controller.html">InvitationController</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modèles Client</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../client/models/trajet.html">Trajet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/models/reservation.html">Réservation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/models/invitation.html">Invitation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Vues Client</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../client/views/main_window.html">MainWindow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/views/login_view.html">Vue de connexion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/views/register_view.html">Inscription utilisateur</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/views/home_view.html">Vue d’accueil</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/views/profile_view.html">Profil utilisateur</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/views/voiture_view.html">VoitureView</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/views/matching_view.html">MatchingView</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/views/mes_trajets_view.html">Mes trajets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/views/reservations_view.html">ReservationsView</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/views/invitations_view.html">Vue des invitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/views/reservations_invitations_container.html">Conteneur Réservations et Invitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/views/rechercher_view.html">Rechercher un trajet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/views/edt_import_view.html">Vue d’import de l’emploi du temps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client/views/disponibilite_view.html">Disponibilités utilisateur</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Base de données</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../database/schema.html">Schéma de la base de données</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../database/relations.html">Relations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Annexes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../execution.html">Exécution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conventions.html">Conventions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SAE_302_APP_Communicante</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Application graphique de co-voiturage</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/content/cahier_des_charges.rst.txt" rel="nofollow"> Afficher la source de la page</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="application-graphique-de-co-voiturage">
+<h1>Application graphique de co-voiturage<a class="headerlink" href="#application-graphique-de-co-voiturage" title="Lien permanent vers cette rubrique"></a></h1>
+<section id="cadre-et-objectif-general">
+<h2>Cadre et objectif général<a class="headerlink" href="#cadre-et-objectif-general" title="Lien permanent vers cette rubrique"></a></h2>
+<p>Le projet vise à développer une application graphique PyQt client/serveur de co-voiturage entre personnes partant de la même ville et travaillant dans une autre ville avec des emplois du temps généralement différents.
+L'application devra permettre à chaque utilisateur :</p>
+<blockquote>
+<div><ul>
+<li><p>de s'inscrire en renseignant un certain nombre d'informations ainsi que leur emploi du temps sous forme de fichier au format i-calendar</p></li>
+<li><p>d'indiquer pour un jour donné :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>la liste des voyageurs dont l'horaire de départ et l'heure de retour sont compatibles à 15 min, 30 min, 1h, 2h près</p></li>
+<li><p>la liste des voyageurs dont l'horaire de départ est compatible à 15 min, 30 min, 1h, 2h près</p></li>
+<li><p>le conducteur parmis les voyageurs dont les horaires sont compatibles de manière à ce que le nombre de trajet soit le plus équitable possibles</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>de choisir, s'il y en a une, une solution dans la liste proposée</p></li>
+<li><p>d'afficher une page bilan qui récapitule pour chaque personne le nombre de trajets, les coûts, distances parcourues avec sa voiture et le bilan carbonne</p></li>
+</ul>
+</div></blockquote>
+<p>Lors de la création/modification de son compte, chaque utilisateur pourra indiquer les éléments suivants :</p>
+<ul class="simple">
+<li><p>nom, prénom</p></li>
+<li><p>login/passwd</p></li>
+<li><p>adresse</p></li>
+<li><p>coordonnées GPS</p></li>
+<li><p>téléphone</p></li>
+<li><p>un fichier d'Emploi Du Temps (EDT) au format ical à charger ou à récupérer suivant un lien indiqué</p></li>
+<li><p>nombre de places dans la voiture</p></li>
+<li><p>nombre de CV fiscaux</p></li>
+<li><p>jours d'indisponibilité de la voiture</p></li>
+<li><p>réfléchir à l'architecture de l'application</p></li>
+<li><p>coût cumulé estimé des trajets (cf règle de calcul frais réels impôts)</p></li>
+<li><p>bilan carbonne</p></li>
+</ul>
+<p>Les étapes principales du projet consistent à :</p>
+<ul>
+<li><p>réfléchir aux données qui devront transiter du serveur vers les clients et vice-versa</p></li>
+<li><p>concevoir et créer une base de données qui permet gérer les données</p></li>
+<li><p>proposer une architecture pour l'application client/serveur</p></li>
+<li><p>concevoir un serveur qui aura les fonctionnalités suivantes :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>création, suppression, modification des comptes des utilisateurs,</p></li>
+<li><p>authentification des utilisateurs,</p></li>
+<li><p>d'effectuer les calculs permettant de proposer les listes de solutions et de mettre à jour les coûts et bilans carbonne</p></li>
+<li><p>de communiquer avec les clients des utilisateurs</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>convevoir et programmer le client des utilisateurs</p></li>
+<li><p>dessiner les interfaces graphiques client accessibles aux utilisateurs concernant :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>l'authentification</p></li>
+<li><p>la création/modification/suppression de compte</p></li>
+<li><p>le paramétrage du calcul</p></li>
+<li><p>l'affichage des liste de solutions</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>programmer l'interface graphique</p></li>
+</ul>
+</section>
+<section id="environnement-de-developpement-et-depot-git">
+<h2>Environnement de développement et dépôt GIT<a class="headerlink" href="#environnement-de-developpement-et-depot-git" title="Lien permanent vers cette rubrique"></a></h2>
+<p>Le projet doit :</p>
+<ul>
+<li><p>utiliser l'outil de gestion de version Git et un IDE de développement Python ;</p></li>
+<li><p>être structuré suivant l'arborescence indiquée ci-après</p></li>
+<li><p>pouvoir s'exécuter sur le système Linux de la Machine Virtuelle deb12-lxqt du datacenter lors de la démonstration finale ;</p></li>
+<li><p>être documenté :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>description du projet au format restructuredText,</p></li>
+<li><p>commentaires pertinents dans le code (si utile à la compréhension),</p></li>
+<li><p>commentaires des fonctions développées</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>comporter un répertoire de test où toutes les fonctions Python développées auront un code de test unitaire</p></li>
+</ul>
+<p>Le projet est rattaché à un dépôt GIT que vous aurez créé sur GitHub et à la livraison de vos codes informatiques.
+Le dépôt <strong>devra absolument</strong> être remis lors de la livraison finale du projet.
+Le versionnement étant tracé et daté, il servira pour l'évaluation du travail du groupe et de chaque étudiant.</p>
+</section>
+<section id="langages-de-scripting-programmation">
+<h2>Langages de scripting/programmation<a class="headerlink" href="#langages-de-scripting-programmation" title="Lien permanent vers cette rubrique"></a></h2>
+<p>Le projet doit utiliser :</p>
+<ul class="simple">
+<li><p>le langage de programmation <strong>Python</strong> (version &gt; 3.10) pour les <strong>codes sources</strong> et <strong>PyQt</strong> pour les projets d'interface graphique</p></li>
+</ul>
+</section>
+<section id="arborescence-du-projet">
+<h2>Arborescence du projet<a class="headerlink" href="#arborescence-du-projet" title="Lien permanent vers cette rubrique"></a></h2>
+<p>Votre projet doit :</p>
+<ul>
+<li><p>être exécuté par le biais d'un script <code class="docutils literal notranslate"><span class="pre">nom_projet.py</span></code>. Ce script reprendra la structure classique des programmes vue en <strong>R1.07-Fondamentaux de la programmation</strong> et décrite dans le formulaire Python. Il prendra d'éventuels paramètres en arguments.</p></li>
+<li><p>respecter l'arborescence suivante (<code class="docutils literal notranslate"><span class="pre">PROJETGitHUB</span></code> désigne le répertoire auquel est rattaché votre projet et constitue la base du dépôt local Git) :</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>PROJETGitHUB
+├──<span class="w"> </span>.git/
+├──<span class="w"> </span>data/
+│<span class="w">   </span>└──<span class="w"> </span>...
+├──<span class="w"> </span>docs/
+│<span class="w">     </span>├──<span class="w"> </span>build/
+│<span class="w">     </span>│<span class="w">    </span>└──<span class="w"> </span>html/
+│<span class="w">     </span>└──<span class="w"> </span>source/
+│<span class="w">          </span>├──<span class="w"> </span>index.rst
+│<span class="w">          </span>├──<span class="w"> </span>conf.py
+│<span class="w">          </span>├──<span class="w"> </span>content/
+│<span class="w">          </span>├──<span class="w"> </span>_static/
+│<span class="w">          </span>└──<span class="w"> </span>_templates/
+├──<span class="w"> </span>html/
+│<span class="w">   </span>└──<span class="w"> </span>...
+├──<span class="w"> </span>__init__.py
+├──<span class="w"> </span>nomprojet/
+<span class="p">|</span><span class="w">    </span>├──<span class="w"> </span>nom_projet.py
+│<span class="w">    </span>└──<span class="w"> </span>nom_module_projet.py
+├──<span class="w"> </span>tests/
+│<span class="w">   </span>├──<span class="w"> </span>__init__.py
+│<span class="w">   </span>└──<span class="w"> </span>test_nom_module_projet.py
+├──<span class="w"> </span>.gitignore
+├──<span class="w"> </span>AUTHORS
+│
+└──<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">.git</span></code> le répertoire dédié à Git.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code> le répertoire dédié à stocker différents fichiers de données récupérées et générées pour les besoin du projet.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docs</span></code> le répertoire dédié à stocker la documentation du projet au format retructuredText (répertoire généré automatiquement par sphinx-build).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">html</span></code> répertoire contenant le site web statique de présentation des résultats</p></li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> fichier indiquant la version du projet :</dt><dd><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;0.1.0&#39;</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nomprojet</span></code> le répertoire dédié aux fichiers source Python développés lors du projet</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tests</span></code> le répertoire dédié aux tests unitaires des fonctions développées dans le projet</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tests/__init__.py</span></code> fichier vide</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.gitignore</span></code> le fichier permettant de configurer Git pour ne pas envoyer sur le dépôt distant les fichiers temporaires</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AUTHORS</span></code> le fichier indiquant le nom des auteurs et de leurs coordonnées</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> fichier texte décrivant la version de Python  utilisée et les dépendances du programme python (modules et version des modules Python)</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Avertissement</p>
+<ul class="simple">
+<li><p>Les fichiers : <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code> commence avec un point.</p></li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Vous pouvez ajouter au besoin autant de modules que nécessaires, pour structurer votre code, en les stockant à la racine du répertoire <code class="docutils literal notranslate"><span class="pre">nomprojet</span></code>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Un modèle Modèle Vue Contrôleur (MVC) <span class="xref std std-doc">MVC_help</span> pour structurer le code de l'application est à privilégier</p>
+</div>
+</section>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Lien permanent vers cette rubrique"></a></h2>
+<ul>
+<li><p>La documentation générale du projet devra être écrite au format restructuredText. Vous pourrez pour cela vous appuyer sur le logiciel <a class="reference external" href="https://www.sphinx-doc.org/en/master/tutorial/getting-started.html">Sphinx</a> ;</p></li>
+<li><p>Il conviendra d'ajouter des commentaires <em>doctrings</em> en début de fonction afin de :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>préciser ce que fait la fonction,</p></li>
+<li><p>d'indiquer son auteur, ses dates de création et de dernière modification,</p></li>
+<li><p>décrire ses paramètres et le cas échéant leurs types,</p></li>
+<li><p>décrire les bornes d'utilisation de paramètres pour un bon fonctionnement de la fonction et exceptions qui sont suceptibles d'être levées,</p></li>
+<li><p>ce qu'elle retourne</p></li>
+<li><p>donner un exemple d'utilisation</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</section>
+<section id="tests-unitaires">
+<h2>Tests unitaires<a class="headerlink" href="#tests-unitaires" title="Lien permanent vers cette rubrique"></a></h2>
+<p>En vous inspirant du TP sur les fonctions de la ressource <strong>R1.07-Fondamentaux de la programmation</strong>, vous devrez écrire un code de test de chaque fonction développée dans le projet.
+Celui-ci sera placé dans un programme Python du répertoire <code class="docutils literal notranslate"><span class="pre">tests</span></code>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pied de page">
+        <a href="../architecture.html" class="btn btn-neutral float-left" title="Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Précédent</a>
+        <a href="../serveur/app.html" class="btn btn-neutral float-right" title="Application Flask – Serveur Covoiturage" accesskey="n" rel="next">Suivant <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Roland,Soufiane,Samson,Sahlma.</p>
+  </div>
+
+  Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thème</a>
+    fourni par <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
