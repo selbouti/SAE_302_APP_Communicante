@@ -45,6 +45,9 @@ Voir le fichier :
 terminal 1 :
 cd covoiturage/server
 python3 app.py
+---
+### Serveur
+```bash
 terminal 1 :
 cd covoiturage/client
 python3 main.py
