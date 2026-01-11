@@ -15,7 +15,6 @@ class MesTrajetsView(QWidget):
     - listing trips created by the user
     - distinguishing driver vs. passenger trips
     - toggling a trip mode
-    - deleting a trip
     """
 
     def __init__(self, main_window):
@@ -39,11 +38,11 @@ class MesTrajetsView(QWidget):
         layout.addWidget(title)
 
         self.table = QTableWidget()
-        self.table.setColumnCount(10)
+        self.table.setColumnCount(9)
         self.table.setHorizontalHeaderLabels([
             'Départ', 'Arrivée', 'Date', 'Heure', 'Retour',
             'Voiture', 'Mode', 'Prix',
-            'Changer mode', 'Supprimer'
+            'Changer mode'
         ])
         layout.addWidget(self.table)
 
@@ -140,27 +139,8 @@ class MesTrajetsView(QWidget):
                     )
                     self.table.setCellWidget(row, 8, toggle_btn)
 
-                    delete_btn = QPushButton("Supprimer")
-                    delete_btn.clicked.connect(
-                        lambda _, t_id=t['id']:
-                        self.supprimer(t_id)
-                    )
-                    self.table.setCellWidget(row, 9, delete_btn)
-
         except Exception as e:
             print(f"Erreur chargement trajets: {e}")
-
-    def supprimer(self, trajet_id):
-        """
-        Delete a trip via the server API.
-
-        :param trajet_id: trip identifier
-        """
-        try:
-            TrajetController.supprimer_trajet(trajet_id)
-            self.charger()
-        except Exception as e:
-            print(f"Erreur suppression: {e}")
 
     def basculer_mode(self, trajet_id, mode_actuel):
         """
