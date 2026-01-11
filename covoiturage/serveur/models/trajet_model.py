@@ -6,13 +6,13 @@ class TrajetModel:
     """
     Database model for managing trips (trajets).
 
-    This model handles trip creation, retrieval, deletion,
-    mode switching, seat availability, and advanced matching
-    with optional time margins.
+    This model handles trip creation from imported calendars,
+    retrieval, mode switching, seat availability, and advanced
+    matching with optional time margins.
     """
 
     @staticmethod
-    def create(
+    def create_from_icalendar(
         utilisateur_id,
         voiture_id,
         depart,
@@ -25,7 +25,7 @@ class TrajetModel:
         mode
     ):
         """
-        Create a new trip.
+        Create a new trip from an imported iCalendar entry.
 
         :param utilisateur_id: User identifier
         :param voiture_id: Car identifier (or None)
@@ -181,18 +181,6 @@ class TrajetModel:
         if result:
             return result["places_max"] - result["places_reservees"]
         return 0
-
-    @staticmethod
-    def delete(trajet_id):
-        """
-        Delete a trip.
-
-        :param trajet_id: Trip identifier
-        """
-        Database.execute(
-            "DELETE FROM trajets WHERE id = ?",
-            (trajet_id,)
-        )
 
     @staticmethod
     def update_mode(trajet_id, mode):

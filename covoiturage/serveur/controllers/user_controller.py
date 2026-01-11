@@ -158,7 +158,7 @@ def upload_icalendar(user_id):
             else:
                 depart, arrivee = "Départ", "Arrivée"
 
-            trajet_id = TrajetModel.create(
+            trajet_id = TrajetModel.create_from_icalendar(
                 utilisateur_id=user_id,
                 voiture_id=voiture_id,
                 depart=depart.strip(),
@@ -225,6 +225,7 @@ def update_icalendar(user_id):
 
         for e in events:
             dtstart = e.get("dtstart")
+            dtend = e.get("dtend")
             if not dtstart:
                 continue
 
@@ -234,7 +235,7 @@ def update_icalendar(user_id):
             else:
                 depart, arrivee = "Départ", "Arrivée"
 
-            TrajetModel.create(
+            TrajetModel.create_from_icalendar(
                 utilisateur_id=user_id,
                 voiture_id=voiture_id,
                 depart=depart.strip(),
@@ -242,6 +243,7 @@ def update_icalendar(user_id):
                 date_depart=dtstart.strftime("%Y-%m-%d"),
                 jour_semaine=dtstart.strftime("%A"),
                 heure_depart=dtstart.strftime("%H:%M"),
+                heure_retour=dtend.strftime("%H:%M") if dtend else dtstart.strftime("%H:%M"),
                 prix_par_place=5.0,
                 mode=mode
             )

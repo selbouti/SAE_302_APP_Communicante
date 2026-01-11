@@ -19,59 +19,6 @@ def mes_trajets(user_id):
     return jsonify(trajets), 200
 
 
-@trajet_bp.route("/trajets", methods=["POST"])
-def creer_trajet():
-    """
-    Create a new trip.
-
-    Request JSON body:
-        - utilisateur_id (int)
-        - voiture_id (int or null)
-        - depart (str)
-        - arrivee (str)
-        - date_depart (str)
-        - jour_semaine (str)
-        - heure_depart (str)
-        - heure_retour (str, optional)
-        - prix_par_place (float)
-        - mode (str)
-
-    :return: Created trip identifier
-    :rtype: flask.Response
-    """
-    data = request.json
-
-    trajet_id = TrajetModel.create(
-        data["utilisateur_id"],
-        data["voiture_id"],
-        data["depart"],
-        data["arrivee"],
-        data["date_depart"],
-        data["jour_semaine"],
-        data["heure_depart"],
-        data.get("heure_retour"),
-        data["prix_par_place"],
-        data["mode"]
-    )
-
-    return jsonify({"id": trajet_id}), 201
-
-
-@trajet_bp.route("/trajets/<int:trajet_id>", methods=["DELETE"])
-def supprimer_trajet(trajet_id):
-    """
-    Delete a trip.
-
-    :param trajet_id: Trip identifier
-    :type trajet_id: int
-
-    :return: Deletion confirmation
-    :rtype: flask.Response
-    """
-    TrajetModel.delete(trajet_id)
-    return jsonify({"success": True}), 200
-
-
 @trajet_bp.route("/trajets/<int:trajet_id>/places", methods=["GET"])
 def get_places_disponibles(trajet_id):
     """
