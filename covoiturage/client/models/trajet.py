@@ -1,5 +1,14 @@
 class Trajet:
+    """
+    Client-side trip model for matching results.
+    """
+
     def __init__(self, data):
+        """
+        Build a Trajet instance from API data.
+
+        :param data: trip data dict
+        """
         self.id = data["id"]
         self.utilisateur_id = data["utilisateur_id"]
 
@@ -17,4 +26,7 @@ class Trajet:
     # ----- règles métier -----
 
     def est_complet(self):
+        """
+        Return True when there are no available seats.
+        """
         return self.places <= 0

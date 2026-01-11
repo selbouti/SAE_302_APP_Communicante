@@ -83,6 +83,7 @@ class HomeView(QWidget):
         )
         btns.addWidget(btn_reservations)
 
+
         card_layout.addLayout(btns)
 
         # ================= LOGOUT =================

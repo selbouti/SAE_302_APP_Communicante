@@ -3,26 +3,26 @@ from PyQt5.QtWidgets import (
     QPushButton, QTableWidget,
     QTableWidgetItem
 )
-from services.api_service import APIService
+from controllers.trajet_controller import TrajetController
 from views.common_style import COMMON_STYLE
 
 
 class MesTrajetsView(QWidget):
     """
-    Vue d'affichage et de gestion des trajets de l'utilisateur.
+    View for listing and managing the user's trips.
 
-    Cette vue permet :
-    - d'afficher la liste des trajets créés par l'utilisateur
-    - de distinguer les trajets conducteur / passager
-    - de basculer le mode d'un trajet
-    - de supprimer un trajet
+    This view allows:
+    - listing trips created by the user
+    - distinguishing driver vs. passenger trips
+    - toggling a trip mode
+    - deleting a trip
     """
 
     def __init__(self, main_window):
         """
-        Initialise la vue MesTrajets.
+        Initialize the MesTrajets view.
 
-        :param main_window: fenêtre principale de l'application
+        :param main_window: main application window
         """
         super().__init__()
         self.main_window = main_window
@@ -30,7 +30,7 @@ class MesTrajetsView(QWidget):
 
     def setup_ui(self):
         """
-        Construit l'interface graphique de la vue.
+        Build the view's user interface.
         """
         layout = QVBoxLayout()
 
@@ -65,23 +65,23 @@ class MesTrajetsView(QWidget):
 
     def showEvent(self, event):
         """
-        Appelé automatiquement lorsque la vue devient visible.
+        Called automatically when the view becomes visible.
 
-        Recharge la liste des trajets.
+        Reloads the trip list.
         """
         super().showEvent(event)
         self.charger()
 
     def charger(self):
         """
-        Charge les trajets de l'utilisateur connecté depuis l'API serveur.
+        Load trips for the logged-in user from the server API.
         """
         if not self.main_window.current_user:
             return
 
         try:
-            resp, status = APIService.get(
-                f'mes_trajets/{self.main_window.current_user["id"]}'
+            resp, status = TrajetController.lister_trajets(
+                self.main_window.current_user["id"]
             )
 
             if status == 200:
@@ -152,29 +152,26 @@ class MesTrajetsView(QWidget):
 
     def supprimer(self, trajet_id):
         """
-        Supprime un trajet via l'API serveur.
+        Delete a trip via the server API.
 
-        :param trajet_id: identifiant du trajet
+        :param trajet_id: trip identifier
         """
         try:
-            APIService.delete(f'trajets/{trajet_id}')
+            TrajetController.supprimer_trajet(trajet_id)
             self.charger()
         except Exception as e:
             print(f"Erreur suppression: {e}")
 
     def basculer_mode(self, trajet_id, mode_actuel):
         """
-        Bascule le mode d'un trajet entre conducteur et passager.
+        Toggle a trip mode between driver and passenger.
 
-        :param trajet_id: identifiant du trajet
-        :param mode_actuel: mode actuel du trajet
+        :param trajet_id: trip identifier
+        :param mode_actuel: current trip mode
         """
-        nouveau_mode = (
-            'passager' if mode_actuel == 'conducteur' else 'conducteur'
-        )
-        resp, status = APIService.put(
-            f'trajets/{trajet_id}/mode',
-            {'mode': nouveau_mode}
+        resp, status = TrajetController.basculer_mode(
+            trajet_id,
+            mode_actuel
         )
         if status == 200:
             self.charger()

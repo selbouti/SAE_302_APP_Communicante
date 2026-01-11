@@ -11,19 +11,19 @@ from views.common_style import COMMON_STYLE
 
 class MatchingView(QWidget):
     """
-    Vue de matching des trajets compatibles.
+    View for matching compatible trips.
 
-    Cette vue permet à l'utilisateur :
-    - de sélectionner un de ses trajets
-    - d'afficher les trajets compatibles
-    - de réserver une place ou inviter un passager
+    This view lets a user:
+    - select one of their trips
+    - display compatible trips
+    - reserve a seat or invite a passenger
     """
 
     def __init__(self, main_window):
         """
-        Initialise la vue Matching.
+        Initialize the Matching view.
 
-        :param main_window: fenêtre principale de l'application
+        :param main_window: main application window
         """
         super().__init__()
         self.main_window = main_window
@@ -35,7 +35,7 @@ class MatchingView(QWidget):
     # ==================================================
     def setup_ui(self):
         """
-        Construit l'interface graphique.
+        Build the user interface.
         """
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignTop)
@@ -95,18 +95,19 @@ class MatchingView(QWidget):
         layout.addWidget(marges_box)
 
         # Tableau des trajets
-        self.table = QTableWidget(0, 7)
+        self.table = QTableWidget(0, 8)
         self.standard_headers = [
-            "Conducteur",
+            "Utilisateur",
             "Départ",
             "Arrivée",
+            "Retour",
             "Voiture",
             "Prix",
             "Places",
             "Action"
         ]
         self.marges_headers = [
-            "Conducteur",
+            "Utilisateur",
             "Aller",
             "Retour",
             "Places",
@@ -135,7 +136,7 @@ class MatchingView(QWidget):
     # ==================================================
     def showEvent(self, event):
         """
-        Appelé automatiquement lorsque la vue est affichée.
+        Called automatically when the view is shown.
         """
         super().showEvent(event)
 
@@ -155,19 +156,14 @@ class MatchingView(QWidget):
     # ==================================================
     def charger_trajets_perso(self):
         """
-        Charge les trajets personnels de l'utilisateur.
+        Load the user's own trips.
         """
         self.trajet_combo.clear()
         resp, status = self.controller.charger_trajets_perso()
 
         if status == 200:
             for t in resp:
-                heure = t.get("heure_depart", "")
-                heure_txt = f" a {heure}" if heure else ""
-                label = (
-                    f"{t['depart']} → {t['arrivee']} "
-                    f"le {t['date_depart']}{heure_txt} ({t['mode']})"
-                )
+                label = self.controller.format_trajet_label(t)
                 self.trajet_combo.addItem(label, t)
 
         if self.trajet_combo.count() == 0:
@@ -181,7 +177,7 @@ class MatchingView(QWidget):
 
     def charger(self):
         """
-        Charge les trajets compatibles.
+        Load compatible trips.
         """
         self._set_table_headers(self.standard_headers)
         self.table.setRowCount(0)
@@ -205,25 +201,16 @@ class MatchingView(QWidget):
     # ==================================================
     def afficher_trajets(self, data):
         """
-        Affiche les trajets compatibles dans le tableau.
+        Display compatible trips in the table.
 
-        :param data: dictionnaire retourné par le serveur
+        :param data: dict returned by the server
         """
         mon = data["mon_trajet"]
         trajets = data["trajets_compatibles"]
         mode = data["mode_recherche"]
 
-        heure_depart = mon.get("heure_depart", "")
-        heure_retour = mon.get("heure_retour", "")
-        heures = ""
-        if heure_depart and heure_retour:
-            heures = f"{heure_depart} / {heure_retour}"
-        elif heure_depart:
-            heures = heure_depart
-
         self.info_label.setText(
-            f"{mon['depart']} → {mon['arrivee']} "
-            f"({mon['mode']}) {heures}".strip()
+            self.controller.format_trajet_info(mon)
         )
 
         for trajet in trajets:
@@ -237,9 +224,12 @@ class MatchingView(QWidget):
             self.table.setItem(row, 0, QTableWidgetItem(trajet.conducteur))
             self.table.setItem(row, 1, QTableWidgetItem(depart_txt))
             self.table.setItem(row, 2, QTableWidgetItem(trajet.arrivee))
-            self.table.setItem(row, 3, QTableWidgetItem(trajet.voiture))
-            self.table.setItem(row, 4, QTableWidgetItem(trajet.prix))
-            self.table.setItem(row, 5, QTableWidgetItem(str(trajet.places)))
+            self.table.setItem(
+                row, 3, QTableWidgetItem(trajet.heure_retour or "")
+            )
+            self.table.setItem(row, 4, QTableWidgetItem(trajet.voiture))
+            self.table.setItem(row, 5, QTableWidgetItem(trajet.prix))
+            self.table.setItem(row, 6, QTableWidgetItem(str(trajet.places)))
 
             if mode == "réservations":
                 btn = QPushButton("Réserver")
@@ -255,14 +245,14 @@ class MatchingView(QWidget):
                     self.inviter(pid, tid)
                 )
 
-            self.table.setCellWidget(row, 6, btn)
+            self.table.setCellWidget(row, 7, btn)
 
     # ==================================================
     # ACTIONS
     # ==================================================
     def reserver(self, trajet_id):
         """
-        Effectue une réservation.
+        Create a reservation.
         """
         resp, status = self.controller.reserver(trajet_id)
         if status == 201:
@@ -277,7 +267,7 @@ class MatchingView(QWidget):
 
     def inviter(self, passager_id, trajet_id):
         """
-        Envoie une invitation à un utilisateur.
+        Send an invitation to a user.
         """
         resp, status = self.controller.inviter(passager_id, trajet_id)
         if status == 201:
@@ -300,17 +290,11 @@ class MatchingView(QWidget):
             self.info_marges_label.setText("Sélectionnez un trajet")
             return
 
-        heure_aller = self._format_time(trajet.get("heure_depart", ""))
-        heure_retour = self._format_time(trajet.get("heure_retour", "")) or heure_aller
-        data = {
-            "depart": trajet.get("depart", ""),
-            "arrivee": trajet.get("arrivee", ""),
-            "date": trajet.get("date_depart", ""),
-            "heure_aller": heure_aller,
-            "marge_aller": self.marge_aller.currentData(),
-            "heure_retour": heure_retour,
-            "marge_retour": self.marge_retour.currentData(),
-        }
+        data = self.controller.build_marges_payload(
+            trajet,
+            self.marge_aller.currentData(),
+            self.marge_retour.currentData()
+        )
 
         resp, status = self.controller.rechercher_conducteurs_marges(data)
         if status != 200:
@@ -423,15 +407,11 @@ class MatchingView(QWidget):
         date_str = trajet.get("date_depart", "") or "-"
         self.date_value.setText(date_str)
 
-        aller_str = self._format_time(trajet.get("heure_depart", "")) or "-"
-        retour_str = self._format_time(trajet.get("heure_retour", "")) or aller_str
+        aller_str = self.controller.format_time(
+            trajet.get("heure_depart", "")
+        ) or "-"
+        retour_str = self.controller.format_time(
+            trajet.get("heure_retour", "")
+        ) or aller_str
         self.heure_aller_value.setText(aller_str)
         self.heure_retour_value.setText(retour_str)
-
-    def _format_time(self, time_str):
-        if not time_str:
-            return ""
-        parts = time_str.split(":")
-        if len(parts) >= 2:
-            return f"{parts[0].zfill(2)}:{parts[1].zfill(2)}"
-        return time_str

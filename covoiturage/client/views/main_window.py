@@ -188,7 +188,8 @@ class MainWindow(QMainWindow):
                 border-radius: 4px;
                 padding: 8px 10px;
                 font-weight: 600;
-                min-width: 140px;
+                min-width: 180px;
+                max-width: 180px;
                 text-align: left;
             }
             QToolButton:hover {
