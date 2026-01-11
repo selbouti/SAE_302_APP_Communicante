@@ -10,28 +10,27 @@ from views.common_style import COMMON_STYLE
 
 class VoitureView(QWidget):
     """
-    Vue de gestion de la voiture de l'utilisateur.
+    View for managing the user's car.
 
-    Cette vue permet :
-    - d'afficher les informations du véhicule associé à l'utilisateur
-    - de modifier ces informations après activation du mode édition
-    - de supprimer la voiture
-    - de revenir à la vue Profil
+    This view allows the user to:
+    - display car information
+    - edit car details
+    - delete the car
+    - return to the profile view
 
-    Par défaut, les champs sont en lecture seule.
+    By default, all fields are read-only.
     """
 
     def __init__(self, main_window):
         """
-        Initialise la vue Voiture.
+        Initialize the car management view.
 
-        :param main_window: fenêtre principale de l'application
-        :type main_window: MainWindow
+        :param main_window: Reference to the main application window
         """
         super().__init__()
         self.main_window = main_window
 
-        # ================== Layout principal ==================
+        # ================== Main layout ==================
         layout = QVBoxLayout()
         layout.setContentsMargins(20, 15, 20, 15)
         layout.setSpacing(10)
@@ -44,7 +43,7 @@ class VoitureView(QWidget):
         title.setAlignment(Qt.AlignCenter)
         title.setObjectName("titleLabel")
 
-        # ================== Champs ==================
+        # ================== Fields ==================
         self.marque = QLineEdit()
         self.modele = QLineEdit()
         self.chevaux = QLineEdit()
@@ -56,7 +55,6 @@ class VoitureView(QWidget):
             ["thermique", "hybride", "electrique", "hydrogene"]
         )
 
-        #: Liste des champs pour gérer le mode lecture seule
         self.fields = [
             self.marque, self.modele,
             self.chevaux, self.places,
@@ -75,7 +73,7 @@ class VoitureView(QWidget):
         form.addRow("CO₂ (g/km) :", self.co2)
         form.addRow("Motorisation :", self.motorisation)
 
-        # ================== Boutons ==================
+        # ================== Buttons ==================
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(10)
 
@@ -84,7 +82,6 @@ class VoitureView(QWidget):
         self.btn_delete = QPushButton("❌ Supprimer")
         self.btn_back = QPushButton("⬅ Retour")
 
-        # Bouton sauvegarde masqué tant que pas en édition
         self.btn_save.hide()
 
         btn_layout.addWidget(self.btn_edit)
@@ -100,21 +97,20 @@ class VoitureView(QWidget):
         self.setLayout(layout)
         self.setStyleSheet(COMMON_STYLE)
 
-        # ================== Connexions ==================
+        # ================== Signals ==================
         self.btn_edit.clicked.connect(self.enable_edit)
         self.btn_save.clicked.connect(self.save)
         self.btn_delete.clicked.connect(self.delete)
         self.btn_back.clicked.connect(self.go_back)
 
     # ==================================================
-    # MODE ÉDITION
+    # EDIT MODE
     # ==================================================
     def enable_edit(self):
         """
-        Active le mode édition.
+        Enable edit mode.
 
-        Les champs deviennent modifiables
-        et le bouton Enregistrer apparaît.
+        Makes all fields editable and shows the save button.
         """
         for field in self.fields:
             field.setReadOnly(False)
@@ -128,12 +124,10 @@ class VoitureView(QWidget):
     # ==================================================
     def save(self):
         """
-        Enregistre ou met à jour la voiture via l'API serveur.
+        Save or update the car via the server API.
         """
         if not self.main_window.current_user:
-            QMessageBox.warning(
-                self, "Erreur", "Utilisateur non connecté"
-            )
+            QMessageBox.warning(self, "Erreur", "Utilisateur non connecté")
             return
 
         try:
@@ -147,25 +141,19 @@ class VoitureView(QWidget):
             }
 
             user_id = self.main_window.current_user["id"]
-            resp, status = VoitureController.save_voiture(user_id, data)
+            _, status = VoitureController.save_voiture(user_id, data)
 
             if status in (200, 201):
-                QMessageBox.information(
-                    self, "Succès", "Voiture enregistrée ✔"
-                )
+                QMessageBox.information(self, "Succès", "Voiture enregistrée ✔")
 
-                # Repasser en lecture seule
                 for field in self.fields:
                     field.setReadOnly(True)
 
                 self.motorisation.setEnabled(False)
                 self.btn_save.hide()
                 self.btn_edit.show()
-
             else:
-                QMessageBox.critical(
-                    self, "Erreur", "Erreur lors de l'enregistrement"
-                )
+                QMessageBox.critical(self, "Erreur", "Erreur lors de l'enregistrement")
 
         except ValueError:
             QMessageBox.warning(
@@ -176,40 +164,33 @@ class VoitureView(QWidget):
 
     def delete(self):
         """
-        Supprime la voiture associée à l'utilisateur.
+        Delete the user's car.
         """
         if not self.main_window.current_user:
-            QMessageBox.warning(
-                self, "Erreur", "Utilisateur non connecté"
-            )
+            QMessageBox.warning(self, "Erreur", "Utilisateur non connecté")
             return
 
         user_id = self.main_window.current_user["id"]
-        resp, status = VoitureController.delete_voiture(user_id)
+        _, status = VoitureController.delete_voiture(user_id)
 
         if status == 200:
-            QMessageBox.information(
-                self, "Succès", "Voiture supprimée ✔"
-            )
+            QMessageBox.information(self, "Succès", "Voiture supprimée ✔")
             self.clear_fields()
         else:
-            QMessageBox.critical(
-                self, "Erreur", "Erreur lors de la suppression"
-            )
+            QMessageBox.critical(self, "Erreur", "Erreur lors de la suppression")
 
     def go_back(self):
         """
-        Retourne vers la vue Profil utilisateur.
+        Return to the profile view.
         """
         self.main_window.switch_to("profile")
 
     # ==================================================
-    # RAFRAÎCHISSEMENT
+    # REFRESH
     # ==================================================
     def showEvent(self, event):
         """
-        Recharge automatiquement les données de la voiture
-        lorsque la vue devient visible.
+        Automatically reload car data when the view is shown.
         """
         super().showEvent(event)
 
@@ -220,21 +201,21 @@ class VoitureView(QWidget):
         resp, status = VoitureController.get_voiture(user_id)
 
         if status == 200 and resp:
-            v = resp[0]
-            self.marque.setText(v.get("marque", ""))
-            self.modele.setText(v.get("modele", ""))
-            self.chevaux.setText(str(v.get("chevaux_fiscaux", "")))
-            self.places.setText(str(v.get("places_max", "")))
-            self.co2.setText(str(v.get("taux_co2", "")))
+            car = resp[0]
+            self.marque.setText(car.get("marque", ""))
+            self.modele.setText(car.get("modele", ""))
+            self.chevaux.setText(str(car.get("chevaux_fiscaux", "")))
+            self.places.setText(str(car.get("places_max", "")))
+            self.co2.setText(str(car.get("taux_co2", "")))
             self.motorisation.setCurrentText(
-                v.get("motorisation", "thermique")
+                car.get("motorisation", "thermique")
             )
         else:
             self.clear_fields()
 
     def clear_fields(self):
         """
-        Vide tous les champs de la vue.
+        Clear all car input fields.
         """
         for field in self.fields:
             field.clear()

@@ -8,33 +8,44 @@ from views.common_style import COMMON_STYLE
 
 class HomeView(QWidget):
     """
-    Vue d'accueil de l'application.
+    Home view of the application.
+
+    This view acts as the main dashboard after user authentication.
+    It provides quick access to the main features of the application.
     """
 
     def __init__(self, main_window):
+        """
+        Initialize the home view.
+
+        :param main_window: reference to the main application window
+        """
         super().__init__()
         self.main_window = main_window
         self.setup_ui()
 
     def setup_ui(self):
+        """
+        Build and configure the user interface layout.
+        """
         layout = QVBoxLayout()
         layout.setContentsMargins(32, 32, 32, 32)
         layout.setSpacing(24)
 
-        # ================= CARD =================
+        # Main card container
         container = QFrame()
         container.setObjectName("homeCard")
         card_layout = QVBoxLayout(container)
         card_layout.setContentsMargins(24, 24, 24, 24)
         card_layout.setSpacing(16)
 
-        # ================= TITRE =================
+        # Title
         title = QLabel("🚗 Covoiturage Daily")
         title.setAlignment(Qt.AlignCenter)
         title.setObjectName("titleLabel")
         card_layout.addWidget(title)
 
-        # ================= BIENVENUE =================
+        # Welcome message
         user = self.main_window.current_user
         welcome = QLabel()
         welcome.setAlignment(Qt.AlignCenter)
@@ -49,12 +60,13 @@ class HomeView(QWidget):
 
         card_layout.addWidget(welcome)
 
+        # Subtitle
         subtitle = QLabel("Accédez à vos fonctionnalités principales")
         subtitle.setAlignment(Qt.AlignCenter)
         subtitle.setObjectName("subtitleLabel")
         card_layout.addWidget(subtitle)
 
-        # ================= BOUTONS =================
+        # Navigation buttons
         btns = QHBoxLayout()
         btns.setSpacing(14)
 
@@ -76,17 +88,19 @@ class HomeView(QWidget):
         )
         btns.addWidget(btn_trajets)
 
-        btn_reservations = QPushButton("Mes réservations et invitations")
-        
+        btn_reservations = QPushButton(
+            "Mes réservations et invitations"
+        )
         btn_reservations.clicked.connect(
-            lambda: self.main_window.switch_to('reservations_invitations')
+            lambda: self.main_window.switch_to(
+                'reservations_invitations'
+            )
         )
         btns.addWidget(btn_reservations)
 
-
         card_layout.addLayout(btns)
 
-        # ================= LOGOUT =================
+        # Logout button
         logout = QPushButton("Déconnexion")
         logout.setObjectName("logoutButton")
         logout.clicked.connect(
@@ -96,5 +110,6 @@ class HomeView(QWidget):
 
         layout.addWidget(container)
         layout.addStretch()
+
         self.setLayout(layout)
         self.setStyleSheet(COMMON_STYLE)

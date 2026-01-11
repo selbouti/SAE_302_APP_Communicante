@@ -17,9 +17,9 @@ def main():
     """
     Entry point for the PyQt client application.
 
-    This function initializes the PyQt application, creates the main window, 
-    and sets up all the views used in the application. It also manages the 
-    injection of views into the main window's stack and sets the initial view 
+    This function initializes the PyQt application, creates the main window,
+    and sets up all the views used in the application. It also manages the
+    injection of views into the main window's stack and sets the initial view
     to the login screen.
 
     Views:
@@ -33,11 +33,11 @@ def main():
         - VoitureView: Handles car-related operations.
 
     Workflow:
-        1. Initializes the `QApplication`.
-        2. Creates the `MainWindow` instance.
-        3. Instantiates all views and injects them into the main window.
-        4. Sets the initial view to the login screen.
-        5. Starts the PyQt event loop.
+        1. Initialize the QApplication.
+        2. Create the MainWindow instance.
+        3. Instantiate all views and inject them into the main window.
+        4. Set the initial view to the login screen.
+        5. Start the PyQt event loop.
 
     Exits:
         The application exits when the PyQt event loop ends.

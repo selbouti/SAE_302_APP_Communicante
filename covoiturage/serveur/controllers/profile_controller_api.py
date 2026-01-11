@@ -4,18 +4,49 @@ from models.profile_model import ProfileModel
 profile_api = Blueprint("profile_api", __name__, url_prefix="/api")
 
 
-@profile_api.route("/profile/<int:user_id>", methods=["GET"])
+@profile_api.route("/profile/<int:utilisateur_id>", methods=["GET"])
 def get_profile(utilisateur_id):
-        profile = ProfileModel.get_profile(utilisateur_id)
-        if not profile:
-            return jsonify({"success": False, "message": "Utilisateur introuvable"}), 404
-        return jsonify({"success": True, "profile": profile}), 200
+    """
+    Retrieve a user profile.
 
+    :param utilisateur_id: User identifier
+    :type utilisateur_id: int
 
+    :return: User profile data or error message
+    :rtype: flask.Response
+    """
+    profile = ProfileModel.get_profile(utilisateur_id)
+
+    if not profile:
+        return jsonify({
+            "success": False,
+            "message": "User not found"
+        }), 404
+
+    return jsonify({
+        "success": True,
+        "profile": profile
+    }), 200
 
 
 @profile_api.route("/profile/<int:utilisateur_id>", methods=["POST"])
 def update_profile(utilisateur_id):
+    """
+    Update a user profile.
+
+    Request JSON body:
+        - nom (str)
+        - prenom (str)
+        - email (str)
+        - telephone (str)
+        - voiture (dict, optional)
+
+    :param utilisateur_id: User identifier
+    :type utilisateur_id: int
+
+    :return: Update confirmation
+    :rtype: flask.Response
+    """
     data = request.json
 
     ProfileModel.update_profile(
@@ -27,6 +58,9 @@ def update_profile(utilisateur_id):
     )
 
     if data.get("voiture"):
-        ProfileModel.save_voiture(utilisateur_id, data["voiture"])
+        ProfileModel.save_voiture(
+            utilisateur_id,
+            data["voiture"]
+        )
 
-    return jsonify({"success": True})
+    return jsonify({"success": True}), 200

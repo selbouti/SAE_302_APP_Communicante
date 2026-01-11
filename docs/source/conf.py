@@ -6,6 +6,21 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+
+import os
+import sys
+
+# Chemin absolu vers la racine du projet
+PROJECT_ROOT = os.path.abspath(os.path.join(__file__, "../../.."))
+
+# Ajout explicite des chemins
+sys.path.insert(0, PROJECT_ROOT)
+sys.path.insert(0, os.path.join(PROJECT_ROOT, "server"))
+sys.path.insert(0, os.path.join(PROJECT_ROOT, "client"))
+
+print("SPHINX SYS.PATH =", sys.path)
+
+
 project = 'SAE_302_APP_Communicante'
 copyright = '2025, Roland,Soufiane,Samson,Sahlma'
 author = 'Roland,Soufiane,Samson,Sahlma'
@@ -20,6 +35,17 @@ extensions = [
 'sphinx.ext.autodoc',
 'sphinx.ext.viewcode',
 ]
+
+autodoc_mock_imports = [
+    "flask",
+    "flask_cors",
+    "PyQt5",
+    "PyQt5.QtWidgets",
+    "PyQt5.QtCore",
+    "PyQt5.QtGui",
+    "icalendar",
+]
+
 highlight_language = 'python'
 pygments_style = 'sphinx'
 

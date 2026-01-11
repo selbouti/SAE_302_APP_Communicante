@@ -8,10 +8,24 @@ user_bp = Blueprint("user", __name__, url_prefix="/api")
 
 
 # =====================================
-# REGISTER (avec voiture optionnelle)
+# REGISTER (optional car)
 # =====================================
 @user_bp.route("/register", methods=["POST"])
 def register():
+    """
+    Register a new user.
+
+    Request JSON body:
+        - email (str)
+        - password (str)
+        - nom (str)
+        - prenom (str)
+        - telephone (str, optional)
+        - voiture (dict, optional)
+
+    :return: Created user data or error message
+    :rtype: flask.Response
+    """
     data = request.json or {}
 
     email = data.get("email", "").strip()
@@ -19,23 +33,22 @@ def register():
     nom = data.get("nom", "").strip()
     prenom = data.get("prenom", "").strip()
     telephone = data.get("telephone", "").strip()
-    voiture = data.get("voiture")  # optionnel
+    voiture = data.get("voiture")
 
     if not email or not password or not nom or not prenom:
-        return jsonify({"error": "Champs requis manquants"}), 400
+        return jsonify({"error": "Missing required fields"}), 400
 
     result = UserModel.create(email, password, nom, prenom, telephone)
     if not result:
-        return jsonify({"error": "Email déjà utilisé"}), 400
+        return jsonify({"error": "Email already used"}), 400
 
     user_id = result["id"]
 
-    # ✅ Enregistrer la voiture si fournie
     if voiture:
         try:
             VoitureModel.create(user_id, voiture)
         except Exception as e:
-            print("Erreur voiture register:", e)
+            print("Car creation error:", e)
 
     return jsonify(result), 201
 
@@ -45,29 +58,48 @@ def register():
 # ===================
 @user_bp.route("/login", methods=["POST"])
 def login():
+    """
+    Authenticate a user.
+
+    Request JSON body:
+        - email (str)
+        - password (str)
+
+    :return: Authenticated user data or error message
+    :rtype: flask.Response
+    """
     data = request.json or {}
 
     email = data.get("email", "").strip()
     password = data.get("password", "").strip()
 
     if not email or not password:
-        return jsonify({"error": "Email et mot de passe requis"}), 400
+        return jsonify({"error": "Email and password required"}), 400
 
     user = UserModel.get_by_email(email, password)
     if not user:
-        return jsonify({"error": "Identifiants invalides"}), 401
+        return jsonify({"error": "Invalid credentials"}), 401
 
     return jsonify(user), 200
 
 
 # ===================
-# PROFIL
+# PROFILE
 # ===================
 @user_bp.route("/profile/<int:user_id>", methods=["GET"])
 def get_profile(user_id):
+    """
+    Retrieve a user's profile and associated car.
+
+    :param user_id: User identifier
+    :type user_id: int
+
+    :return: User profile data
+    :rtype: flask.Response
+    """
     user = UserModel.get_by_id(user_id)
     if not user:
-        return jsonify({"error": "Utilisateur introuvable"}), 404
+        return jsonify({"error": "User not found"}), 404
 
     voiture = VoitureModel.get_by_user(user_id)
 
@@ -78,21 +110,29 @@ def get_profile(user_id):
 
 
 # =====================================
-# UPLOAD CALENDRIER (première fois)
+# UPLOAD CALENDAR (first import)
 # =====================================
 @user_bp.route("/upload_icalendar/<int:user_id>", methods=["POST"])
 def upload_icalendar(user_id):
+    """
+    Upload an iCalendar file and generate trips.
 
+    :param user_id: User identifier
+    :type user_id: int
+
+    :return: Import result and created trips
+    :rtype: flask.Response
+    """
     if "file" not in request.files:
-        return jsonify({"error": "Pas de fichier envoyé"}), 400
+        return jsonify({"error": "No file provided"}), 400
 
     file = request.files["file"]
     if not file or file.filename == "":
-        return jsonify({"error": "Fichier vide"}), 400
+        return jsonify({"error": "Empty file"}), 400
 
     user = UserModel.get_by_id(user_id)
     if not user:
-        return jsonify({"error": "Utilisateur introuvable"}), 404
+        return jsonify({"error": "User not found"}), 404
 
     try:
         ics_content = file.read()
@@ -107,31 +147,29 @@ def upload_icalendar(user_id):
 
         for e in events:
             dtstart = e.get("dtstart")
-            dtend = e.get("dtend")  # <-- ajouter cette ligne
+            dtend = e.get("dtend")
 
             if not dtstart:
                 continue
 
             summary = (e.get("summary") or "").strip()
-
             if " - " in summary:
-                depart, arrivee = [x.strip() for x in summary.split(" - ", 1)]
+                depart, arrivee = summary.split(" - ", 1)
             else:
                 depart, arrivee = "Départ", "Arrivée"
 
             trajet_id = TrajetModel.create(
                 utilisateur_id=user_id,
                 voiture_id=voiture_id,
-                depart=depart,
-                arrivee=arrivee,
+                depart=depart.strip(),
+                arrivee=arrivee.strip(),
                 date_depart=dtstart.strftime("%Y-%m-%d"),
                 jour_semaine=dtstart.strftime("%A"),
                 heure_depart=dtstart.strftime("%H:%M"),
-                heure_retour=(dtend.strftime("%H:%M") if dtend else dtstart.strftime("%H:%M")),
+                heure_retour=dtend.strftime("%H:%M") if dtend else dtstart.strftime("%H:%M"),
                 prix_par_place=5.0,
                 mode=mode
             )
-
 
             if trajet_id:
                 created += 1
@@ -145,32 +183,38 @@ def upload_icalendar(user_id):
         }), 201
 
     except Exception as e:
-        print("UPLOAD ICS ERROR:", e)
         return jsonify({"error": str(e)}), 400
 
 
 # =====================================
-# UPDATE CALENDRIER (reset trajets)
+# UPDATE CALENDAR (reset trips)
 # =====================================
 @user_bp.route("/update_icalendar/<int:user_id>", methods=["POST"])
 def update_icalendar(user_id):
+    """
+    Update calendar by resetting and recreating trips.
 
+    :param user_id: User identifier
+    :type user_id: int
+
+    :return: Update result
+    :rtype: flask.Response
+    """
     if "file" not in request.files:
-        return jsonify({"error": "Pas de fichier envoyé"}), 400
+        return jsonify({"error": "No file provided"}), 400
 
     file = request.files["file"]
     if not file or file.filename == "":
-        return jsonify({"error": "Fichier vide"}), 400
+        return jsonify({"error": "Empty file"}), 400
 
     user = UserModel.get_by_id(user_id)
     if not user:
-        return jsonify({"error": "Utilisateur introuvable"}), 404
+        return jsonify({"error": "User not found"}), 404
 
     try:
         ics_content = file.read()
         events = ICalendarParser.parse_events(ics_content)
 
-        # 🔥 supprimer anciens trajets
         TrajetModel.delete_by_user(user_id)
 
         voiture = VoitureModel.get_by_user(user_id)
@@ -185,17 +229,16 @@ def update_icalendar(user_id):
                 continue
 
             summary = (e.get("summary") or "").strip()
-
             if " - " in summary:
-                depart, arrivee = [x.strip() for x in summary.split(" - ", 1)]
+                depart, arrivee = summary.split(" - ", 1)
             else:
                 depart, arrivee = "Départ", "Arrivée"
 
             TrajetModel.create(
                 utilisateur_id=user_id,
                 voiture_id=voiture_id,
-                depart=depart,
-                arrivee=arrivee,
+                depart=depart.strip(),
+                arrivee=arrivee.strip(),
                 date_depart=dtstart.strftime("%Y-%m-%d"),
                 jour_semaine=dtstart.strftime("%A"),
                 heure_depart=dtstart.strftime("%H:%M"),
@@ -207,6 +250,4 @@ def update_icalendar(user_id):
         return jsonify({"success": True, "trajets": count}), 200
 
     except Exception as e:
-        print("UPDATE ICS ERROR:", e)
         return jsonify({"error": str(e)}), 400
-

@@ -1,5 +1,5 @@
 Schéma de la base de données
-===========================
+============================
 
 Tables principales :
 - utilisateurs

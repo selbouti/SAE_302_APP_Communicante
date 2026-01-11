@@ -1,14 +1,19 @@
 class Trajet:
     """
-    Client-side trip model for matching results.
+    Client-side model representing a trip used in matching results.
     """
 
     def __init__(self, data):
         """
         Build a Trajet instance from API data.
 
-        :param data: trip data dict
+        :param data: Trip data dictionary
+        :type data: dict
         """
+        assert isinstance(data, dict)
+        assert "id" in data
+        assert "utilisateur_id" in data
+
         self.id = data["id"]
         self.utilisateur_id = data["utilisateur_id"]
 
@@ -23,10 +28,9 @@ class Trajet:
         self.prix = f"{data['prix_par_place']} €"
         self.places = data["places_disponibles"]
 
-    # ----- règles métier -----
-
     def est_complet(self):
         """
-        Return True when there are no available seats.
+        Return True if no seats are available.
         """
         return self.places <= 0
+

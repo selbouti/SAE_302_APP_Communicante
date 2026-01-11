@@ -9,14 +9,17 @@ from views.common_style import COMMON_STYLE
 
 class LoginView(QWidget):
     """
-    Vue de connexion utilisateur.
+    User login view.
+
+    This view allows a user to authenticate by providing
+    an email address and a password.
     """
 
     def __init__(self, main_window):
         """
-        Initialise la vue de connexion.
+        Initialize the login view.
 
-        :param main_window: Fenêtre principale
+        :param main_window: Reference to the main application window
         """
         super().__init__()
         self.main_window = main_window
@@ -24,7 +27,7 @@ class LoginView(QWidget):
 
     def setup_ui(self):
         """
-        Construit l'interface graphique.
+        Build and configure the graphical user interface.
         """
         layout = QVBoxLayout()
         layout.setContentsMargins(32, 32, 32, 32)
@@ -47,15 +50,15 @@ class LoginView(QWidget):
         card_layout.setContentsMargins(24, 24, 24, 24)
         card_layout.setSpacing(16)
 
-        # Email
-        email_label = QLabel("Email")
+        # Email field
+        email_label = QLabel("Adresse email")
         card_layout.addWidget(email_label)
 
         self.email = QLineEdit()
         self.email.setPlaceholderText("exemple@email.com")
         card_layout.addWidget(self.email)
 
-        # Mot de passe
+        # Password field
         pwd_label = QLabel("Mot de passe")
         card_layout.addWidget(pwd_label)
 
@@ -63,13 +66,15 @@ class LoginView(QWidget):
         self.password.setEchoMode(QLineEdit.Password)
         card_layout.addWidget(self.password)
 
-        # Boutons
+        # Buttons
         btn_row = QHBoxLayout()
 
         cancel_btn = QPushButton("Annuler")
-        cancel_btn.clicked.connect(lambda: self.main_window.switch_to('login'))
+        cancel_btn.clicked.connect(
+            lambda: self.main_window.switch_to('login')
+        )
 
-        login_btn = QPushButton("Se connecter")
+        login_btn = QPushButton("Connexion")
         login_btn.clicked.connect(self.login)
 
         for btn in (cancel_btn, login_btn):
@@ -81,13 +86,15 @@ class LoginView(QWidget):
 
         card_layout.addLayout(btn_row)
 
-        # Inscription
+        # Registration link
         register_label = QLabel("Première connexion ?")
         register_label.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(register_label)
 
         register_btn = QPushButton("Créer un compte")
-        register_btn.clicked.connect(lambda: self.main_window.switch_to('register'))
+        register_btn.clicked.connect(
+            lambda: self.main_window.switch_to('register')
+        )
         card_layout.addWidget(register_btn)
 
         layout.addWidget(card)
@@ -98,7 +105,10 @@ class LoginView(QWidget):
 
     def login(self):
         """
-        Tente une connexion utilisateur.
+        Attempt to authenticate the user.
+
+        Sends the entered credentials to the UserController
+        and handles success or failure.
         """
         resp, status = UserController.login(
             self.email.text(),
@@ -110,6 +120,7 @@ class LoginView(QWidget):
             self.main_window.switch_to('home')
         else:
             QMessageBox.warning(
-                self, "Erreur",
+                self,
+                "Erreur",
                 resp.get('error', 'Erreur de connexion')
             )

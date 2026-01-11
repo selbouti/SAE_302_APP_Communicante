@@ -3,6 +3,13 @@ from datetime import datetime, timedelta
 
 
 class TrajetModel:
+    """
+    Database model for managing trips (trajets).
+
+    This model handles trip creation, retrieval, deletion,
+    mode switching, seat availability, and advanced matching
+    with optional time margins.
+    """
 
     @staticmethod
     def create(
@@ -17,6 +24,21 @@ class TrajetModel:
         prix_par_place,
         mode
     ):
+        """
+        Create a new trip.
+
+        :param utilisateur_id: User identifier
+        :param voiture_id: Car identifier (or None)
+        :param depart: Departure location
+        :param arrivee: Arrival location
+        :param date_depart: Departure date
+        :param jour_semaine: Day of the week
+        :param heure_depart: Departure time
+        :param heure_retour: Return time
+        :param prix_par_place: Price per seat
+        :param mode: Trip mode (conducteur or passager)
+        :return: Created trip ID
+        """
         query = '''
             INSERT INTO trajets (
                 utilisateur_id, voiture_id, depart, arrivee,
@@ -44,6 +66,12 @@ class TrajetModel:
 
     @staticmethod
     def get_by_user(user_id):
+        """
+        Retrieve all trips created by a user.
+
+        :param user_id: User identifier
+        :return: List of trips
+        """
         query = '''
             SELECT
                 t.*,
@@ -64,6 +92,11 @@ class TrajetModel:
 
     @staticmethod
     def delete_by_user(user_id):
+        """
+        Delete all trips belonging to a user.
+
+        :param user_id: User identifier
+        """
         Database.execute(
             "DELETE FROM trajets WHERE utilisateur_id = ?",
             (user_id,)
@@ -71,6 +104,12 @@ class TrajetModel:
 
     @staticmethod
     def get_first_trajet(user_id):
+        """
+        Retrieve the first trip created by a user.
+
+        :param user_id: User identifier
+        :return: Trip data or None
+        """
         query = '''
             SELECT
                 t.*,
@@ -92,13 +131,18 @@ class TrajetModel:
 
     @staticmethod
     def get_trajet_by_id(trajet_id, user_id):
+        """
+        Retrieve a specific trip belonging to a user.
+
+        :param trajet_id: Trip identifier
+        :param user_id: User identifier
+        :return: Trip data or None
+        """
         query = '''
             SELECT
                 t.*,
                 v.marque,
                 v.modele,
-                
-                
                 v.places_max,
                 (
                     SELECT COALESCE(SUM(r.places_reservees), 0)
@@ -117,6 +161,12 @@ class TrajetModel:
 
     @staticmethod
     def get_places_disponibles(trajet_id):
+        """
+        Calculate available seats for a trip.
+
+        :param trajet_id: Trip identifier
+        :return: Number of available seats
+        """
         query = '''
             SELECT
                 v.places_max,
@@ -134,6 +184,11 @@ class TrajetModel:
 
     @staticmethod
     def delete(trajet_id):
+        """
+        Delete a trip.
+
+        :param trajet_id: Trip identifier
+        """
         Database.execute(
             "DELETE FROM trajets WHERE id = ?",
             (trajet_id,)
@@ -141,15 +196,19 @@ class TrajetModel:
 
     @staticmethod
     def update_mode(trajet_id, mode):
+        """
+        Update the mode of a trip.
+
+        :param trajet_id: Trip identifier
+        :param mode: New mode
+        :return: True if successful
+        """
         Database.execute(
             "UPDATE trajets SET mode = ? WHERE id = ?",
             (mode, trajet_id)
         )
         return True
 
-    # ================================
-    # Nouvelle méthode pour marges
-    # ================================
     @staticmethod
     def search_matching_avance(
         depart,
@@ -162,6 +221,20 @@ class TrajetModel:
         heure_retour=None,
         marge_retour=0
     ):
+        """
+        Search compatible trips with optional time margins.
+
+        :param depart: Departure location
+        :param arrivee: Arrival location
+        :param date_depart: Departure date
+        :param mode_recherche: Target mode (conducteur or passager)
+        :param user_id: Current user identifier
+        :param heure_aller: Reference outbound time
+        :param marge_aller: Outbound margin (minutes)
+        :param heure_retour: Reference return time
+        :param marge_retour: Return margin (minutes)
+        :return: List of matching trips
+        """
         query = '''
             SELECT
                 t.*,
@@ -200,7 +273,6 @@ class TrajetModel:
             user_id
         ]
 
-        # 🕒 Gestion optionnelle des marges horaires
         if heure_aller and heure_retour:
             heure_min = (
                 datetime.strptime(heure_aller, "%H:%M")
@@ -217,7 +289,6 @@ class TrajetModel:
 
         query += " GROUP BY t.id"
 
-        # ✅ condition places UNIQUEMENT si on cherche des conducteurs
         if mode_recherche == "conducteur":
             query += " HAVING places_disponibles > 0"
 

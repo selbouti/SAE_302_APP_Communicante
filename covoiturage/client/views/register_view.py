@@ -12,17 +12,29 @@ import os
 
 class RegisterView(QWidget):
     """
-    Vue d'inscription des utilisateurs avec possibilité
-    d'ajouter une voiture uniquement si l'utilisateur coche "J'ai une voiture".
+    User registration view.
+
+    This view allows a new user to:
+    - create an account
+    - optionally register a car
+    - optionally import an iCalendar (.ics) file
     """
 
     def __init__(self, main_window):
+        """
+        Initialize the registration view.
+
+        :param main_window: reference to the main application window
+        """
         super().__init__()
         self.main_window = main_window
         self.ical_file = None
         self.setup_ui()
 
     def setup_ui(self):
+        """
+        Build and configure the registration user interface.
+        """
         layout = QVBoxLayout()
         layout.setSpacing(10)
         layout.setContentsMargins(40, 30, 40, 30)
@@ -122,11 +134,16 @@ class RegisterView(QWidget):
 
     def toggle_car_fields(self, state):
         """
-        Affiche ou cache les champs voiture selon le checkbox.
+        Show or hide car input fields depending on the checkbox state.
+
+        :param state: checkbox state (Qt.Checked or Qt.Unchecked)
         """
         self.car_fields_container.setVisible(state == Qt.Checked)
 
     def browse_file(self):
+        """
+        Open a file dialog to select an iCalendar (.ics) file.
+        """
         file_path, _ = QFileDialog.getOpenFileName(
             self, "Sélectionner fichier iCalendar", "", "ICS Files (*.ics)"
         )
@@ -135,6 +152,15 @@ class RegisterView(QWidget):
             self.file_label.setText(os.path.basename(file_path))
 
     def register(self):
+        """
+        Register a new user via the UserController.
+
+        This method:
+        - collects user data
+        - optionally collects car data
+        - sends the registration request
+        - optionally uploads an iCalendar file
+        """
         # Construction des données voiture si checkbox cochée
         voiture_data = None
         if self.has_car_checkbox.isChecked():

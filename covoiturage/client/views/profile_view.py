@@ -10,19 +10,19 @@ from views.common_style import COMMON_STYLE
 
 class ProfileView(QWidget):
     """
-    Vue du profil utilisateur.
+    User profile view.
 
-    Cette vue permet :
-    - d'afficher les informations personnelles de l'utilisateur
-    - de modifier ces informations après activation du mode édition
-    - d'accéder à la gestion de la voiture
+    This view allows the user to:
+    - display personal information
+    - edit profile data
+    - navigate to vehicle management
     """
 
     def __init__(self, main_window):
         """
-        Initialise la vue Profil.
+        Initialize the Profile view.
 
-        :param main_window: fenêtre principale de l'application
+        :param main_window: Main application window
         """
         super().__init__()
         self.main_window = main_window
@@ -97,7 +97,9 @@ class ProfileView(QWidget):
     # ==================================================
     def load(self):
         """
-        Charge les informations du profil depuis le serveur.
+        Load the user profile data from the server.
+
+        Redirects to the login view if no user is connected.
         """
         if not self.main_window.current_user:
             self.main_window.switch_to("login")
@@ -125,15 +127,15 @@ class ProfileView(QWidget):
     # ==================================================
     def enable_edit(self):
         """
-        Active le mode édition.
+        Enable edit mode for profile fields.
         """
         self.set_editable(True)
 
     def set_editable(self, editable):
         """
-        Active ou désactive l'édition des champs.
+        Enable or disable editing of profile fields.
 
-        :param editable: True pour édition, False sinon
+        :param editable: True to enable editing, False otherwise
         """
         for field in self.fields:
             field.setReadOnly(not editable)
@@ -146,7 +148,7 @@ class ProfileView(QWidget):
     # ==================================================
     def save(self):
         """
-        Enregistre les modifications du profil.
+        Save profile updates to the server.
         """
         user_id = self.main_window.current_user["id"]
 
@@ -174,12 +176,12 @@ class ProfileView(QWidget):
     # ==================================================
     def go_voiture(self):
         """
-        Accède à la vue de gestion de la voiture.
+        Navigate to the vehicle management view.
         """
         self.main_window.switch_to("voiture")
 
     def go_back(self):
         """
-        Retour à l'accueil.
+        Return to the home view.
         """
         self.main_window.switch_to("home")

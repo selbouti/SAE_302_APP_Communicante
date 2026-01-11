@@ -7,41 +7,41 @@ from PyQt5.QtCore import Qt, QSize
 
 class MainWindow(QMainWindow):
     """
-    Fenêtre principale de l'application Covoiturage Daily.
+    Main window of the Covoiturage Daily application.
 
-    Cette classe gère :
-    - l'affichage des différentes vues via un QStackedWidget
-    - la barre de menu (MenuBar)
-    - la barre d'outils (ToolBar)
-    - la navigation entre les vues
-    - l'état de l'utilisateur connecté
+    This class is responsible for:
+    - displaying application views using a QStackedWidget
+    - managing the menu bar
+    - managing the navigation toolbar
+    - handling navigation between views
+    - storing the currently connected user
 
-    Elle constitue le point central de l'interface graphique côté client.
+    It represents the central entry point of the client-side GUI.
     """
 
     def __init__(self, views):
         """
-        Initialise la fenêtre principale.
+        Initialize the main application window.
 
-        :param views: dictionnaire des vues de l'application
+        :param views: Dictionary containing all application views
         :type views: dict
         """
         super().__init__()
         self.setWindowTitle("Covoiturage Daily - BlaBlaCar")
         self.setGeometry(100, 100, 1000, 700)
 
-        #: Utilisateur actuellement connecté
+        #: Currently connected user
         self.current_user = None
 
-        #: Dictionnaire des vues
+        #: Dictionary of available views
         self.views = views
 
-        # ---------- Widget central ----------
+        # ---------- Central widget ----------
         central_widget = QWidget()
         layout = QVBoxLayout(central_widget)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        #: Widget empilé contenant toutes les vues
+        #: Stacked widget containing all views
         self.stack = QStackedWidget()
         layout.addWidget(self.stack)
 
@@ -50,28 +50,28 @@ class MainWindow(QMainWindow):
         for view in views.values():
             self.stack.addWidget(view)
 
-        # ---------- Menu + Toolbar ----------
+        # ---------- Menu bar and toolbar ----------
         self.create_menu_bar()
         self.create_tool_bar()
 
-        # Cachés par défaut (login / register)
+        # Hidden by default (login / register views)
         self.menuBar().hide()
         self.toolbar.hide()
 
     # =====================================================
-    # BARRE DE MENU
+    # MENU BAR
     # =====================================================
     def create_menu_bar(self):
         """
-        Crée la barre de menu principale de l'application.
+        Create the main menu bar of the application.
 
-        Elle contient :
-        - un menu Compte
-        - un menu Trajets
-        - un menu Réservations
-        - un menu Aide
+        The menu bar includes:
+        - an Account menu
+        - a Trips menu
+        - a Reservations menu
+        - a Help menu
 
-        Chaque entrée déclenche une navigation vers une vue via `switch_to`.
+        Each menu action triggers navigation through the `switch_to` method.
         """
         menubar = self.menuBar()
         menubar.setStyleSheet("""
@@ -98,16 +98,20 @@ class MainWindow(QMainWindow):
             }
         """)
 
-        # ===== COMPTE =====
+        # ===== ACCOUNT =====
         menu_compte = menubar.addMenu("Compte")
 
         self.act_profile = QAction("Mon profil", self)
         self.act_profile.setShortcut("Ctrl+P")
-        self.act_profile.triggered.connect(lambda: self.switch_to("profile"))
+        self.act_profile.triggered.connect(
+            lambda: self.switch_to("profile")
+        )
 
         self.act_voiture = QAction("Ma voiture", self)
         self.act_voiture.setShortcut("Ctrl+V")
-        self.act_voiture.triggered.connect(lambda: self.switch_to("voiture"))
+        self.act_voiture.triggered.connect(
+            lambda: self.switch_to("voiture")
+        )
 
         self.act_logout = QAction("Déconnexion", self)
         self.act_logout.setShortcut("Ctrl+Q")
@@ -118,7 +122,7 @@ class MainWindow(QMainWindow):
         menu_compte.addSeparator()
         menu_compte.addAction(self.act_logout)
 
-        # ===== TRAJETS =====
+        # ===== TRIPS =====
         menu_trajets = menubar.addMenu("Trajets")
 
         self.act_mes_trajets = QAction("Mes trajets", self)
@@ -136,7 +140,7 @@ class MainWindow(QMainWindow):
         menu_trajets.addAction(self.act_mes_trajets)
         menu_trajets.addAction(self.act_matching)
 
-        # ===== RÉSERVATIONS =====
+        # ===== RESERVATIONS =====
         menu_resa = menubar.addMenu("Réservations")
 
         self.act_resa = QAction("Mes réservations", self)
@@ -147,7 +151,7 @@ class MainWindow(QMainWindow):
 
         menu_resa.addAction(self.act_resa)
 
-        # ===== AIDE =====
+        # ===== HELP =====
         menu_aide = menubar.addMenu("Aide")
 
         self.act_about = QAction("À propos", self)
@@ -160,15 +164,15 @@ class MainWindow(QMainWindow):
     # =====================================================
     def create_tool_bar(self):
         """
-        Crée la barre d'outils (ToolBar) de navigation rapide.
+        Create the navigation toolbar.
 
-        Elle permet un accès direct aux principales vues :
-        - profil
-        - voiture
-        - trajets
+        The toolbar provides quick access to the main application views:
+        - profile
+        - car
+        - trips
         - matching
-        - réservations
-        - déconnexion
+        - reservations
+        - logout
         """
         self.toolbar = QToolBar("Navigation")
         self.toolbar.setMovable(False)
@@ -217,21 +221,21 @@ class MainWindow(QMainWindow):
     # =====================================================
     def set_current_user(self, user):
         """
-        Définit l'utilisateur actuellement connecté.
+        Set the currently connected user.
 
-        :param user: informations de l'utilisateur
+        :param user: User information dictionary
         :type user: dict
         """
         self.current_user = user
 
     def switch_to(self, view_name):
         """
-        Change la vue affichée dans le QStackedWidget.
+        Switch the displayed view in the stacked widget.
 
-        - Masque la barre de menu et la toolbar sur login/register
-        - Recharge la vue si elle possède une méthode `load` ou `refresh`
+        - Hides the menu bar and toolbar on login/register views
+        - Reloads the view if it provides a `load` or `refresh` method
 
-        :param view_name: nom de la vue à afficher
+        :param view_name: Name of the view to display
         :type view_name: str
         """
         if view_name in ("login", "register"):
@@ -256,19 +260,19 @@ class MainWindow(QMainWindow):
 
     def logout(self):
         """
-        Déconnecte l'utilisateur courant et redirige vers la vue de connexion.
+        Log out the current user and redirect to the login view.
         """
         self.current_user = None
         self.switch_to("login")
 
     def show_about(self):
         """
-        Affiche la boîte de dialogue 'À propos' de l'application.
+        Display the "About" dialog of the application.
         """
         QMessageBox.information(
             self,
             "À propos",
             "Covoiturage Daily\n"
-            "Application PyQt client/serveur\n"
-            "Projet SAE"
+            "Client/Server PyQt application\n"
+            "SAE Project"
         )

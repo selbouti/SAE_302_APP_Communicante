@@ -1,14 +1,14 @@
 Documentation du projet Covoiturage
-==================================
+===================================
 
-Bienvenue dans la documentation technique du projet **Covoiturage**.
+Bienvenue dans la documentation technique du projet **Covoiturage Daily**.
 
-Ce projet est une application client / serveur permettant la gestion
+Ce projet est une application **client / serveur** permettant la gestion
 du covoiturage entre utilisateurs, incluant :
 
-- la gestion des utilisateurs
-- la gestion des voitures
-- la création et la recherche de trajets
+- la gestion des utilisateurs et profils
+- la gestion des véhicules
+- la création, modification et recherche de trajets
 - le matching conducteur / passager
 - les réservations et invitations
 - l’import d’emplois du temps (EDT)
@@ -26,7 +26,7 @@ Présentation générale
    :maxdepth: 2
    :caption: Présentation
 
-   presentation
+   Presentation
    architecture
 
 ---
@@ -38,13 +38,16 @@ API Serveur (Flask)
    :maxdepth: 2
    :caption: API Serveur
 
-   server/controllers/user_controller
-   server/controllers/voiture_controller
-   server/controllers/trajet_controller
-   server/controllers/matching_controller
-   server/controllers/reservation_controller
-   server/controllers/invitation_controller
-   server/controllers/profile_controller_api
+   serveur/app
+   serveur/config
+   serveur/controllers/auth_controller
+   serveur/controllers/user_controller
+   serveur/controllers/profile_controller_api
+   serveur/controllers/voiture_controller
+   serveur/controllers/trajet_controller
+   serveur/controllers/matching_controller
+   serveur/controllers/reservation_controller
+   serveur/controllers/invitation_controller
 
 ---
 
@@ -55,14 +58,14 @@ Modèles Serveur
    :maxdepth: 2
    :caption: Modèles Serveur
 
-   server/models/user_model
-   server/models/voiture_model
-   server/models/trajet_model
-   server/models/reservation_model
-   server/models/invitation_model
-   server/models/profile_model
-   server/models/disponibilite_model
-   server/models/edt_model
+   serveur/models/user_model
+   serveur/models/profile_model
+   serveur/models/voiture_model
+   serveur/models/trajet_model
+   serveur/models/reservation_model
+   serveur/models/invitation_model
+   serveur/models/disponibilite_model
+   serveur/models/edt_model
 
 ---
 
@@ -73,9 +76,19 @@ Services Serveur
    :maxdepth: 2
    :caption: Services Serveur
 
-   server/services/api_service
-   server/services/edt_parser
-   server/services/icalendar_parser
+
+   serveur/services/icalendar_parser
+
+---
+
+Accès aux données
+-----------------
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Accès Base de Données
+
+   serveur/core/database
 
 ---
 
@@ -88,11 +101,26 @@ Client PyQt5
 
    client/main
    client/controllers/user_controller
+   client/controllers/profile_controller
    client/controllers/voiture_controller
    client/controllers/trajet_controller
    client/controllers/matching_controller
    client/controllers/reservation_controller
    client/controllers/invitation_controller
+
+---
+
+Modèles Client
+--------------
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Modèles Client
+
+
+   client/models/trajet
+   client/models/reservation
+   client/models/invitation
 
 ---
 
@@ -103,6 +131,7 @@ Vues Client (Interface Graphique)
    :maxdepth: 2
    :caption: Vues Client
 
+   client/views/main_window
    client/views/login_view
    client/views/register_view
    client/views/home_view
@@ -110,7 +139,12 @@ Vues Client (Interface Graphique)
    client/views/voiture_view
    client/views/matching_view
    client/views/mes_trajets_view
-   client/views/mes_reservations_view
+   client/views/reservations_view
+   client/views/invitations_view
+   client/views/reservations_invitations_container
+   client/views/rechercher_view
+   client/views/edt_import_view
+   client/views/disponibilite_view
 
 ---
 

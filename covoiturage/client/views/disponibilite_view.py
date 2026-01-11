@@ -8,10 +8,21 @@ from views.common_style import COMMON_STYLE
 
 class DisponibiliteView(QWidget):
     """
-    Affichage des disponibilités utilisateur
+    User availability view.
+
+    This view allows the user to:
+    - select a date
+    - generate availabilities from their timetable (EDT)
+    - display available time slots for the selected day
+    - navigate back to the home view
     """
 
     def __init__(self, controller):
+        """
+        Initialize the availability view.
+
+        :param controller: controller handling availability logic and navigation
+        """
         super().__init__()
         self.controller = controller
 
@@ -42,11 +53,25 @@ class DisponibiliteView(QWidget):
         self.setStyleSheet(COMMON_STYLE)
 
     def generate(self):
+        """
+        Generate availabilities for the selected date from the timetable.
+
+        This method:
+        - retrieves the selected date
+        - asks the controller to compute availabilities from the EDT
+        - refreshes the displayed list
+        """
         date_py = self.date_picker.date().toPyDate()
         self.controller.generate_disponibilites_from_edt(date_py)
         self.refresh()
 
     def refresh(self):
+        """
+        Refresh the list of displayed availabilities.
+
+        Availabilities are fetched from the controller's availability model
+        and displayed as formatted time ranges.
+        """
         self.list_dispo.clear()
 
         dispos = self.controller.dispo_model.get_user_dispos(
