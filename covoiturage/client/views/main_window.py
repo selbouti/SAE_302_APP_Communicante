@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (
     QWidget, QAction, QMessageBox, QToolBar
 )
 from PyQt5.QtCore import Qt, QSize
-
+from PyQt5.QtGui import QIcon
 
 class MainWindow(QMainWindow):
     """
@@ -174,36 +174,54 @@ class MainWindow(QMainWindow):
         - reservations
         - logout
         """
+    
+
         self.toolbar = QToolBar("Navigation")
         self.toolbar.setMovable(False)
-        self.toolbar.setIconSize(QSize(24, 24))
         self.toolbar.setOrientation(Qt.Vertical)
-        self.toolbar.setToolButtonStyle(Qt.ToolButtonTextOnly)
+        self.toolbar.setIconSize(QSize(32, 32))
+
+         # 👉 Icônes uniquement
+        self.toolbar.setToolButtonStyle(Qt.ToolButtonIconOnly)
+
         self.toolbar.setStyleSheet("""
             QToolBar {
-                background-color: #f7f7f7;
-                spacing: 8px;
-                padding: 8px;
+            background-color: #f7f7f7;
+            spacing: 12px;
+            padding: 10px;
             }
             QToolButton {
-                background-color: #8b1a1a;
-                color: #ffffff;
-                border: 1px solid #6f1212;
-                border-radius: 4px;
-                padding: 8px 10px;
-                font-weight: 600;
-                min-width: 180px;
-                max-width: 180px;
-                text-align: left;
-            }
+            background-color: #8b1a1a;
+            border-radius: 6px;
+            padding: 10px;
+                 }
             QToolButton:hover {
-                background-color: #a32020;
+            background-color: #a32020;
             }
             QToolButton:pressed {
                 background-color: #6b1212;
-            }
+         }
         """)
 
+    # ===== Ajout des icônes aux actions EXISTANTES =====
+        self.act_profile.setIcon(QIcon("icons/profil.png"))
+        self.act_voiture.setIcon(QIcon("icons/car.png"))
+        self.act_mes_trajets.setIcon(QIcon("icons/trajets.png"))
+        self.act_matching.setIcon(QIcon("icons/matching.png"))
+        self.act_resa.setIcon(QIcon("icons/reservation.png"))
+        self.act_logout.setIcon(QIcon("icons/logout.png"))
+        self.act_about.setIcon(QIcon("icons/apropos.png"))
+
+    # ===== Tooltips (indispensable en mode icône seule) =====
+        self.act_profile.setToolTip("Mon profil")
+        self.act_voiture.setToolTip("Ma voiture")
+        self.act_mes_trajets.setToolTip("Mes trajets")
+        self.act_matching.setToolTip("Matching")
+        self.act_resa.setToolTip("Mes réservations")
+        self.act_logout.setToolTip("Déconnexion")
+        self.act_about.setToolTip("À propos")
+
+    # ===== Actions =====
         self.toolbar.addAction(self.act_profile)
         self.toolbar.addAction(self.act_voiture)
         self.toolbar.addSeparator()
@@ -215,6 +233,7 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(self.act_about)
 
         self.addToolBar(Qt.LeftToolBarArea, self.toolbar)
+
 
     # =====================================================
     # NAVIGATION
